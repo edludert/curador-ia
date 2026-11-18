@@ -19,7 +19,8 @@ begin
       'm.tentori@tec.mx',
       'lopezclau@tec.mx',
       'dianajmz_@tec.mx',
-      'laura.picca@tec.mx'
+      'laura.picca@tec.mx',
+      'edgar.ludert@tec.mx'
     ) then 'teacher'
     else 'student'
   end;
@@ -49,5 +50,6 @@ and lower(u.email) in (
   'm.tentori@tec.mx',
   'lopezclau@tec.mx',
   'dianajmz_@tec.mx',
-  'laura.picca@tec.mx'
+  'laura.picca@tec.mx',
+  'edgar.ludert@tec.mx'
 );
