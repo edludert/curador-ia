@@ -118,7 +118,6 @@ function authMarkup(){
         <div class="field"><label>Contraseña</label><input id="loginPassword" type="password"></div>
         <button id="loginBtn" class="btn">Entrar</button>
         <div id="loginStatus" class="status"></div>
-        <div class="pilot-access-hint">Docentes piloto: usa tu correo institucional autorizado + contraseña <b>${TEACHER_PILOT_PASSWORD}</b></div>
       </section>
       <section class="card">
         <div class="k">PRUEBA PILOTO</div><h2>Crear cuenta</h2>
