@@ -4,6 +4,57 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://crsqlxzivmrocv
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_ZIof7M3OQ6gpz6dCYq2n4Q_PmJMLIjH';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const curriculum = {
+  1:[
+    ['A1001B','Historia del arte, diseño y ciudad'],['A1007','Teoría del arte, diseño y ciudad'],
+    ['AR1010B','Fundamentos de diseño'],['AR1029','Dibujo y expresión gráfica'],
+    ['DL1024','Métodos creativos'],['EG1006','Optativa de matemáticas y ciencias'],
+    ['H1007S','Inducción al servicio social'],['STEC1101S','Semana tec optativa I']
+  ],
+  2:[
+    ['A1002B','Programación creativa'],['A1003B','Experimentación digital'],
+    ['AR1030','Investigación para industrias creativas'],['AR1031','Análisis y visualización de datos'],
+    ['DL1025','Diseño con matemáticas y física'],['EG1007','Optativa de humanidades y bellas artes'],
+    ['HI1034','Inglés académico'],['STEC1102S','Semana tec optativa II'],
+    ['STEC1103S','Semana tec optativa III'],['VA1002B','Optativa de exploración disciplinar']
+  ],
+  3:[
+    ['DL1001B','Estudio de diseño I'],['DL1002B','Geometría para el diseño'],
+    ['DL1026','Materiales y procesos I'],['DL1027','Dibujo y representación'],
+    ['EG1008','Optativa de ciencias sociales y del comportamiento'],
+    ['STEC1104S','Semana tec optativa IV'],['STEC1105S','Semana tec optativa V']
+  ],
+  4:[
+    ['DL2007B','Teorías y métodos de diseño'],['DL2008B','Estudio de diseño II'],
+    ['DL2060','Modelación y visualización digital'],['DL2061','Materiales y procesos II'],
+    ['EG1009','Optativa de liderazgo, emprendimiento e innovación'],
+    ['STEC1106S','Semana tec optativa VI'],['STEC2001S','Semana tec disciplinar']
+  ],
+  5:[
+    ['DL2009B','Diseño y tecnología'],['DL2010B','Estudio de diseño III'],
+    ['DL2062','Historia y crítica del diseño'],['DL2063','Gestión estratégica del diseño'],
+    ['DL2064','Diseño para la vida'],['DL2065','Diseño especulativo'],
+    ['EG1010','Optativa de ética y ciudadanía'],['STEC1107S','Semana tec optativa VII'],
+    ['STEC2002S','Orientación para la vida profesional']
+  ],
+  6:[
+    ['OP3098','Optativa profesional I'],['OP3099','Optativa profesional II'],
+    ['OP3100','Optativa profesional III'],['OP3101','Optativa profesional IV'],
+    ['OP3102','Optativa profesional V'],['OP3103','Optativa profesional VI'],
+    ['STEC1108S','Semana tec optativa VIII'],['STEC1109S','Semana tec optativa IX']
+  ],
+  7:[
+    ['STEC1110S','Semana tec optativa X'],['STEC1111S','Semana tec optativa XI'],
+    ['VA3117','Tópicos I'],['VA3118','Tópicos II'],['VA3119','Tópicos III'],
+    ['VA3120','Tópicos IV'],['VA3121','Tópicos V'],['VA3122','Tópicos VI']
+  ],
+  8:[
+    ['DL3023B','Estudio de diseño IV'],['OP3013B','Optativa multidisciplinar'],
+    ['STEC1112S','Semana tec optativa XII'],['STEC3001S','Tácticas y guías para examen fin de carrera']
+  ]
+};
+
+
 const app=document.querySelector('#app');
 let session=null, profile=null;
 
@@ -37,7 +88,8 @@ app.innerHTML=`
     <div class="grid">
       <div class="card" id="studentPanel">
         <div class="k">ESTUDIANTE · NUEVA EVIDENCIA</div><h2>Subir proceso</h2>
-        <div class="field"><label>Materia</label><input id="course" placeholder="Ej. Métodos creativos"></div>
+        <div class="field"><label>Semestre</label><select id="semester"></select></div>
+        <div class="field"><label>Materia</label><select id="course"></select></div>
         <div class="field"><label>Proyecto</label><input id="project" placeholder="Nombre del proyecto"></div>
         <div class="field"><label>¿Qué decisión estás documentando?</label><textarea id="reflection"></textarea></div>
         <div class="field"><label>Archivo</label><input id="file" type="file" accept="image/*,.pdf"></div>
@@ -71,6 +123,17 @@ app.innerHTML=`
 </div>`;
 
 const $=id=>document.getElementById(id);
+
+function populateSemesters(){
+  $('semester').innerHTML=Object.keys(curriculum).map(s=>`<option value="${s}">Semestre ${s}</option>`).join('');
+  populateCourses();
+}
+function populateCourses(){
+  const s=$('semester').value||'1';
+  $('course').innerHTML=(curriculum[s]||[]).map(([code,name])=>`<option value="${code} · ${name}">${code} · ${name}</option>`).join('');
+}
+$('semester').addEventListener('change',populateCourses);
+populateSemesters();
 
 async function loadProfile(){
   const {data}=await supabase.from('profiles').select('*').eq('id',session.user.id).single();
@@ -109,7 +172,7 @@ $('uploadBtn').onclick=async()=>{
   const path=`${session.user.id}/${crypto.randomUUID()}-${f.name}`;
   const up=await supabase.storage.from('evidence').upload(path,f);
   if(up.error){$('uploadStatus').textContent=up.error.message;return}
-  const row=await supabase.from('evidence').insert({student_id:session.user.id,course:$('course').value,project:$('project').value,reflection:$('reflection').value,file_path:path,file_name:f.name,mime_type:f.type}).select().single();
+  const row=await supabase.from('evidence').insert({student_id:session.user.id,semester:Number($('semester').value),course:$('course').value,project:$('project').value,reflection:$('reflection').value,file_path:path,file_name:f.name,mime_type:f.type}).select().single();
   $('uploadStatus').textContent=row.error?row.error.message:'Evidencia guardada.';
   await loadEvidence();
 };
@@ -119,7 +182,7 @@ async function loadEvidence(){
   if(profile?.role==='student') q=q.eq('student_id',session.user.id);
   const {data,error}=await q;
   if(error){$('evidenceList').textContent=error.message;return}
-  $('evidenceList').innerHTML=(data||[]).map(e=>`<div class="evidence" data-id="${e.id}"><b>${e.project||'Sin título'}</b> · ${e.course||'Sin materia'}<div class="status">${e.reflection||''}</div><span class="tag">${e.file_name}</span></div>`).join('')||'<div class="status">Todavía no hay evidencias.</div>';
+  $('evidenceList').innerHTML=(data||[]).map(e=>`<div class="evidence" data-id="${e.id}"><b>${e.project||'Sin título'}</b> · Semestre ${e.semester||'—'} · ${e.course||'Sin materia'}<div class="status">${e.reflection||''}</div><span class="tag">${e.file_name}</span></div>`).join('')||'<div class="status">Todavía no hay evidencias.</div>';
   if(profile?.role!=='student'){
     $('feedbackEvidence').innerHTML=(data||[]).map(e=>`<option value="${e.id}">${e.profiles?.name||'Estudiante'} · ${e.project||e.file_name}</option>`).join('');
   }
