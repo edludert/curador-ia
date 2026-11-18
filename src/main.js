@@ -62,6 +62,7 @@ let session = null;
 let profile = null;
 let evidence = [];
 let feedback = [];
+let students = [];
 let currentView = 'home';
 let latestReading = null;
 let selectedCapability = 'Experimentación';
@@ -82,13 +83,12 @@ function authMarkup(){
         <div class="field"><label>Email</label><input id="loginEmail" type="email"></div>
         <div class="field"><label>Contraseña</label><input id="loginPassword" type="password"></div>
         <button id="loginBtn" class="btn">Entrar</button>
-        <button id="pilotTeacherBtn" class="btn ghost pilot-login">Entrar como profesor piloto</button>
         <div id="loginStatus" class="status"></div>
       </section>
       <section class="card">
         <div class="k">PRUEBA PILOTO</div><h2>Crear cuenta</h2>
         <div class="field"><label>Nombre</label><input id="signupName"></div>
-        <div class="field"><label>Rol</label><select id="signupRole"><option value="student">Estudiante</option><option value="teacher">Profesor</option></select></div>
+        <div class="field"><label>Tipo de cuenta</label><input value="Estudiante" disabled></div>
         <div class="field"><label>Email</label><input id="signupEmail" type="email"></div>
         <div class="field"><label>Contraseña</label><input id="signupPassword" type="password"></div>
         <button id="signupBtn" class="btn ghost">Crear cuenta</button>
@@ -440,10 +440,13 @@ function profileProjects(){
 }
 
 function teacherStudentsView(){
-  const names=[...new Set(evidence.map(e=>e.profiles?.name).filter(Boolean))];
+  const list=students.length?students:[{id:'demo-lucia',name:'Lucía Romo',role:'student'}];
   return `
-  <section class="view active"><div class="k">DOCENTE</div><h1>Estudiantes</h1><p class="lead">Una vista para acompañar proceso, detectar señales y devolver preguntas sin convertir la lectura docente en una calificación del ADN.</p>
-  <div class="teacher-grid"><div class="teacher-card">${(names.length?names:['Lucía Romo']).map(n=>`<div class="student-row"><div><b>${esc(n)}</b><div class="signal">Archivo activo · proceso en construcción</div></div><button class="btn ghost small" data-go="review">Revisar</button></div>`).join('')}</div><div class="teacher-card"><div class="k">PRINCIPIO</div><h2>Ver lo que el estudiante todavía no ve.</h2><p class="m">La lectura del profesor entra como señal externa y requiere interpretación del estudiante.</p></div></div></section>`;
+  <section class="view active"><div class="k">DOCENTE</div><h1>Estudiantes</h1><p class="lead">Las cuentas reales registradas como estudiantes aparecen aquí automáticamente, aunque todavía no hayan subido evidencia.</p>
+  <div class="teacher-grid"><div class="teacher-card">${list.map(s=>{
+    const count=evidence.filter(e=>e.student_id===s.id || e.profiles?.name===s.name).length;
+    return `<div class="student-row"><div><b>${esc(s.name||'Estudiante')}</b><div class="signal">${count} evidencias · ${count?'proceso activo':'aún sin evidencias'}</div></div><button class="btn ghost small" data-go="review">Revisar</button></div>`;
+  }).join('')}</div><div class="teacher-card"><div class="k">PRINCIPIO</div><h2>Ver lo que el estudiante todavía no ve.</h2><p class="m">La lectura del profesor entra como señal externa y requiere interpretación del estudiante.</p></div></div></section>`;
 }
 
 async function teacherReviewView(){
@@ -614,9 +617,17 @@ async function loadProfile(){
 
 async function loadData(){
   if(pilotTeacherMode){
-    evidence=demoEvidence.map(e=>({...e,profiles:{name:'Lucía Romo'}}));
+    evidence=demoEvidence.map(e=>({...e,profiles:{name:'Lucía Romo'},student_id:'demo-lucia'}));
     feedback=[];
+    students=[{id:'demo-lucia',name:'Lucía Romo',role:'student'}];
     return;
+  }
+  if(profile?.role==='teacher'||profile?.role==='admin'){
+    const pr=await supabase.from('profiles').select('id,name,role,created_at').eq('role','student').order('name',{ascending:true});
+    students=pr.data||[];
+    if(pr.error) console.warn(pr.error);
+  } else {
+    students=[];
   }
   let q=supabase.from('evidence').select('*,profiles!evidence_student_id_fkey(name)').order('created_at',{ascending:false});
   if(profile?.role==='student') q=q.eq('student_id',session.user.id);
@@ -645,7 +656,7 @@ async function refresh(){
   const {data:{session:s}}=await supabase.auth.getSession();
   session=s;
   if(!session){
-    profile=null;evidence=[];feedback=[];currentView='home';
+    profile=null;evidence=[];feedback=[];students=[];currentView='home';
     app.innerHTML=authMarkup();
     const enterPilotTeacher=async()=>{
       pilotTeacherMode=true;
@@ -665,9 +676,9 @@ async function refresh(){
       const {error}=await supabase.auth.signInWithPassword({email,password});
       $('loginStatus').textContent=error?error.message:'Acceso correcto';
     };
-    if($('pilotTeacherBtn')) $('pilotTeacherBtn').onclick=enterPilotTeacher;
+    if(new URLSearchParams(location.search).get('pilot')==='teacher'){ const b=document.createElement('button'); b.className='btn ghost pilot-login'; b.textContent='Entrar como profesor piloto'; b.onclick=enterPilotTeacher; $('loginBtn').after(b); }
     $('signupBtn').onclick=async()=>{
-      const {error}=await supabase.auth.signUp({email:$('signupEmail').value,password:$('signupPassword').value,options:{emailRedirectTo:window.location.origin,data:{name:$('signupName').value,role:$('signupRole').value}}});
+      const {error}=await supabase.auth.signUp({email:$('signupEmail').value,password:$('signupPassword').value,options:{emailRedirectTo:window.location.origin,data:{name:$('signupName').value,role:'student'}}});
       $('signupStatus').textContent=error?error.message:'Cuenta creada. Revisa tu correo para confirmar.';
     };
     return;
