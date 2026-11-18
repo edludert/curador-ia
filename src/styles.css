@@ -65,3 +65,56 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 .course-link[data-state="current"]:before{content:"EN CURSO";display:inline-block;font-size:9px;letter-spacing:.1em;color:#999;margin-bottom:8px}
 .course-link[data-state="future"]{color:#3a3a3a!important}
 .course-link[data-state="completed"] small:after{content:" · COMPLETADA";font-size:9px;color:#666}
+
+/* UX progression states: completed / current / future */
+.course-link[data-state="completed"]{
+  background:#fff !important;
+  color:#000 !important;
+  border-color:#fff !important;
+}
+.course-link[data-state="completed"] strong,
+.course-link[data-state="completed"] small{
+  color:#000 !important;
+}
+.course-link[data-state="completed"]:hover{
+  background:#ededed !important;
+  border-color:#ededed !important;
+}
+.course-link[data-state="completed"] small:after{
+  content:" · COMPLETADA";
+  font-size:9px;
+  color:#555;
+}
+
+.course-link[data-state="current"]{
+  background:#0a0a0a !important;
+  color:#fff !important;
+  border-color:#555 !important;
+}
+.course-link[data-state="current"] strong,
+.course-link[data-state="current"] small{
+  color:#fff !important;
+}
+.course-link[data-state="current"]:before{
+  content:"EN CURSO";
+  display:inline-block;
+  margin-bottom:8px;
+  font-size:9px;
+  letter-spacing:.12em;
+  color:#aaa;
+}
+
+.course-link[data-state="future"]{
+  background:#050505 !important;
+  color:#3f3f3f !important;
+  border-color:#161616 !important;
+}
+.course-link[data-state="future"] strong,
+.course-link[data-state="future"] small{
+  color:#3f3f3f !important;
+}
+.course-link[data-state="future"]:hover{
+  background:#0a0a0a !important;
+  color:#595959 !important;
+  border-color:#222 !important;
+}
