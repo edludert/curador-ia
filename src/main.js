@@ -122,7 +122,28 @@ function authMarkup(){
       </section>
       <section class="card">
         <div class="k">PRUEBA PILOTO</div><h2>Crear cuenta</h2>
-        <div class="field"><label>Nombre</label><input id="signupName"></div>
+        <div class="grid g2">
+          <div class="field"><label>Nombre</label><input id="signupFirstName" autocomplete="given-name"></div>
+          <div class="field"><label>Apellido</label><input id="signupLastName" autocomplete="family-name"></div>
+        </div>
+        <div id="studentRegistrationFields">
+          <div class="grid g2">
+            <div class="field"><label>Matrícula</label><input id="signupMatricula" placeholder="A0XXXXXXXX"></div>
+            <div class="field"><label>Semestre actual</label>
+              <select id="signupSemester">
+                <option value="">Selecciona semestre</option>
+                <option value="1">1er semestre</option>
+                <option value="2">2º semestre</option>
+                <option value="3">3er semestre</option>
+                <option value="4">4º semestre</option>
+                <option value="5">5º semestre</option>
+                <option value="6">6º semestre</option>
+                <option value="7">7º semestre</option>
+                <option value="8">8º semestre</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div class="field"><label>Tipo de cuenta</label><input id="signupAccountType" value="Estudiante" disabled></div>\n        <div id="teacherPilotNote" class="teacher-pilot-note hidden">Correo docente autorizado · contraseña piloto: <b>${TEACHER_PILOT_PASSWORD}</b></div>
         <div class="field"><label>Email</label><input id="signupEmail" type="email"></div>
         <div class="field"><label>Contraseña</label><input id="signupPassword" type="password"></div>
@@ -871,6 +892,7 @@ async function refresh(){
       const isTeacher=TEACHER_PILOT_EMAILS.includes(email);
       if($('signupAccountType')) $('signupAccountType').value=isTeacher?'Profesor/a piloto':'Estudiante';
       if($('teacherPilotNote')) $('teacherPilotNote').classList.toggle('hidden',!isTeacher);
+      if($('studentRegistrationFields')) $('studentRegistrationFields').classList.toggle('hidden',isTeacher);
       if(isTeacher && $('signupPassword')) $('signupPassword').value=TEACHER_PILOT_PASSWORD;
     };
     if($('signupEmail')) $('signupEmail').oninput=updateSignupMode;
@@ -878,8 +900,29 @@ async function refresh(){
       const email=$('signupEmail').value.trim().toLowerCase();
       const isTeacher=TEACHER_PILOT_EMAILS.includes(email);
       const password=isTeacher?TEACHER_PILOT_PASSWORD:$('signupPassword').value;
+      const firstName=$('signupFirstName')?.value.trim()||'';
+      const lastName=$('signupLastName')?.value.trim()||'';
+      const matricula=$('signupMatricula')?.value.trim().toUpperCase()||'';
+      const semester=$('signupSemester')?.value||'';
+      if(!firstName || !lastName){$('signupStatus').textContent='Escribe nombre y apellido.';return;}
+      if(!isTeacher && (!matricula || !semester)){$('signupStatus').textContent='Para estudiantes, matrícula y semestre son obligatorios.';return;}
       if(isTeacher && $('signupPassword')) $('signupPassword').value=TEACHER_PILOT_PASSWORD;
-      const {error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin,data:{name:$('signupName').value,role:isTeacher?'teacher':'student'}}});
+      const fullName=[firstName,lastName].filter(Boolean).join(' ');
+      const {error}=await supabase.auth.signUp({
+        email,
+        password,
+        options:{
+          emailRedirectTo:window.location.origin,
+          data:{
+            first_name:firstName,
+            last_name:lastName,
+            name:fullName,
+            matricula:isTeacher?null:matricula,
+            semester:isTeacher?null:Number(semester),
+            role:isTeacher?'teacher':'student'
+          }
+        }
+      });
       $('signupStatus').textContent=error?error.message:(isTeacher?'Cuenta docente creada. Revisa tu correo para confirmar y después entra con la contraseña piloto.':'Cuenta creada. Revisa tu correo para confirmar.');
     };
     return;
