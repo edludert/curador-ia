@@ -7,7 +7,7 @@ export default async function handler(req,res){
     method:'POST',
     headers:{'Authorization':`Bearer ${process.env.OPENAI_API_KEY}`,'Content-Type':'application/json'},
     body:JSON.stringify({
-      model:'gpt-5.6-mini',
+      model:'gpt-6-luna',
       input:[{
         role:'system',
         content:[{type:'input_text',text:'Eres CURADOR.IA, una herramienta pedagógica de introspección. No defines la identidad del estudiante. Propones hipótesis tentativas, una pregunta socrática y capacidades posibles basadas solo en la evidencia dada. Evita calificar o diagnosticar.'}]
