@@ -30,3 +30,10 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 .teacher-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;align-items:start}.student-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border-top:1px solid #222;padding:14px 0}.student-row:first-child{border-top:0}.signal{font-size:11px;color:#777;margin-top:5px}.feedback-entry{border-top:1px solid #222;padding:12px 0}.feedback-entry span{font-size:10px;color:#888;text-transform:uppercase}.feedback-entry p{margin:5px 0}
 @media(max-width:950px){.app{grid-template-columns:1fr}aside{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--l)}nav{grid-template-columns:repeat(2,1fr)}main{padding:22px}.clean-home h1{font-size:46px}.auth-grid,.g2,.dna-layout,.intro-shell,.profile-hero,.teacher-grid,.project-story,.dna-live-grid,.provenance-grid{grid-template-columns:1fr}.home-index,.course-list{grid-template-columns:1fr}.media-grid{grid-template-columns:1fr}.media-card{grid-column:auto!important}.semester-block{grid-template-columns:1fr}.semester-number{padding-top:0}.dna-board{min-height:520px}}
 @media(max-width:560px){.auth-shell{padding:24px 16px}.auth-grid{grid-template-columns:1fr}main{padding:18px}h1{font-size:36px}.clean-home h1{font-size:40px}.profile-statement{font-size:26px}.app{display:block}aside{padding:18px}nav{grid-template-columns:1fr 1fr}}
+
+.media-card.quote{padding:0;min-height:260px;display:flex;align-items:stretch}
+.quote-inner{padding:24px;display:flex;flex-direction:column;justify-content:flex-end;width:100%;background:#0a0a0a}
+.quote-inner .type{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#777;margin-bottom:auto}
+.quote-inner p{font-size:28px;line-height:1.08;letter-spacing:-.03em;margin:28px 0 18px;color:#fff}
+.quote-inner small{font-size:11px;color:#777;line-height:1.4}
+@media(max-width:560px){.quote-inner p{font-size:22px}}
