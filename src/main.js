@@ -6,6 +6,15 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const PILOT_TEACHER_EMAIL='profesor@curador.ia';
 const PILOT_TEACHER_PASSWORD='Curador2026!';
+const TEACHER_PILOT_PASSWORD='CuradorPiloto2026!';
+const TEACHER_PILOT_EMAILS=[
+  'arturo.gil.islas@tec.mx',
+  'mmaya@tec.mx',
+  'm.tentori@tec.mx',
+  'lopezclau@tec.mx',
+  'dianajmz_@tec.mx',
+  'laura.picca@tec.mx'
+];
 let pilotTeacherMode=false;
 
 const DEMO_IMAGES = [
@@ -83,12 +92,12 @@ function authMarkup(){
         <div class="field"><label>Email</label><input id="loginEmail" type="email"></div>
         <div class="field"><label>Contraseña</label><input id="loginPassword" type="password"></div>
         <button id="loginBtn" class="btn">Entrar</button>
-        <div id="loginStatus" class="status"></div>
+        <div id="loginStatus" class="status"></div>\n        <div class="pilot-access-hint">Docentes piloto: usa tu correo institucional autorizado + contraseña <b>${TEACHER_PILOT_PASSWORD}</b></div>
       </section>
       <section class="card">
         <div class="k">PRUEBA PILOTO</div><h2>Crear cuenta</h2>
         <div class="field"><label>Nombre</label><input id="signupName"></div>
-        <div class="field"><label>Tipo de cuenta</label><input value="Estudiante" disabled></div>
+        <div class="field"><label>Tipo de cuenta</label><input id="signupAccountType" value="Estudiante" disabled></div>\n        <div id="teacherPilotNote" class="teacher-pilot-note hidden">Correo docente autorizado · contraseña piloto: <b>${TEACHER_PILOT_PASSWORD}</b></div>
         <div class="field"><label>Email</label><input id="signupEmail" type="email"></div>
         <div class="field"><label>Contraseña</label><input id="signupPassword" type="password"></div>
         <button id="signupBtn" class="btn ghost">Crear cuenta</button>
@@ -680,9 +689,21 @@ async function refresh(){
       $('loginStatus').textContent=error?error.message:'Acceso correcto';
     };
     if(new URLSearchParams(location.search).get('pilot')==='teacher'){ const b=document.createElement('button'); b.className='btn ghost pilot-login'; b.textContent='Entrar como profesor piloto'; b.onclick=enterPilotTeacher; $('loginBtn').after(b); }
+    const updateSignupMode=()=>{
+      const email=$('signupEmail')?.value.trim().toLowerCase()||'';
+      const isTeacher=TEACHER_PILOT_EMAILS.includes(email);
+      if($('signupAccountType')) $('signupAccountType').value=isTeacher?'Profesor/a piloto':'Estudiante';
+      if($('teacherPilotNote')) $('teacherPilotNote').classList.toggle('hidden',!isTeacher);
+      if(isTeacher && $('signupPassword')) $('signupPassword').value=TEACHER_PILOT_PASSWORD;
+    };
+    if($('signupEmail')) $('signupEmail').oninput=updateSignupMode;
     $('signupBtn').onclick=async()=>{
-      const {error}=await supabase.auth.signUp({email:$('signupEmail').value,password:$('signupPassword').value,options:{emailRedirectTo:window.location.origin,data:{name:$('signupName').value,role:'student'}}});
-      $('signupStatus').textContent=error?error.message:'Cuenta creada. Revisa tu correo para confirmar.';
+      const email=$('signupEmail').value.trim().toLowerCase();
+      const isTeacher=TEACHER_PILOT_EMAILS.includes(email);
+      const password=isTeacher?TEACHER_PILOT_PASSWORD:$('signupPassword').value;
+      if(isTeacher && $('signupPassword')) $('signupPassword').value=TEACHER_PILOT_PASSWORD;
+      const {error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin,data:{name:$('signupName').value,role:isTeacher?'teacher':'student'}}});
+      $('signupStatus').textContent=error?error.message:(isTeacher?'Cuenta docente creada. Revisa tu correo para confirmar y después entra con la contraseña piloto.':'Cuenta creada. Revisa tu correo para confirmar.');
     };
     return;
   }
