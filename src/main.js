@@ -4,6 +4,10 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://crsqlxzivmrocv
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_ZIof7M3OQ6gpz6dCYq2n4Q_PmJMLIjH';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const PILOT_TEACHER_EMAIL='profesor@curador.ia';
+const PILOT_TEACHER_PASSWORD='Curador2026!';
+let pilotTeacherMode=false;
+
 const DEMO_IMAGES = [
   'https://raw.githubusercontent.com/edludert/curador-ia/main/01.jpg',
   'https://raw.githubusercontent.com/edludert/curador-ia/main/02.jpg',
@@ -601,12 +605,18 @@ async function sendFeedback(){
 }
 
 async function loadProfile(){
+  if(pilotTeacherMode){profile={id:'pilot-teacher',name:'Profesor Piloto',role:'teacher'};return;}
   const {data,error}=await supabase.from('profiles').select('*').eq('id',session.user.id).single();
   if(error) console.warn(error);
   profile=data || {id:session.user.id,name:session.user.user_metadata?.name||'',role:session.user.user_metadata?.role||'student'};
 }
 
 async function loadData(){
+  if(pilotTeacherMode){
+    evidence=demoEvidence.map(e=>({...e,profiles:{name:'Lucía Romo'}}));
+    feedback=[];
+    return;
+  }
   let q=supabase.from('evidence').select('*,profiles!evidence_student_id_fkey(name)').order('created_at',{ascending:false});
   if(profile?.role==='student') q=q.eq('student_id',session.user.id);
   const er=await q;
@@ -618,19 +628,37 @@ async function loadData(){
 
 async function renderAuthenticated(){
   app.innerHTML=shellMarkup();
-  $('logoutBtn').onclick=()=>supabase.auth.signOut();
+  $('logoutBtn').onclick=()=>{if(pilotTeacherMode){pilotTeacherMode=false;session=null;profile=null;refresh();}else{supabase.auth.signOut();}};
   document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>setView(b.dataset.view));
   await renderView();
 }
 
 async function refresh(){
+  if(pilotTeacherMode){
+    session={user:{id:'pilot-teacher',email:PILOT_TEACHER_EMAIL,user_metadata:{name:'Profesor Piloto',role:'teacher'}}};
+    profile={id:'pilot-teacher',name:'Profesor Piloto',role:'teacher'};
+    await loadData();
+    await renderAuthenticated();
+    return;
+  }
   const {data:{session:s}}=await supabase.auth.getSession();
   session=s;
   if(!session){
     profile=null;evidence=[];feedback=[];currentView='home';
     app.innerHTML=authMarkup();
     $('loginBtn').onclick=async()=>{
-      const {error}=await supabase.auth.signInWithPassword({email:$('loginEmail').value,password:$('loginPassword').value});
+      const email=$('loginEmail').value.trim();
+      const password=$('loginPassword').value;
+      if(email===PILOT_TEACHER_EMAIL && password===PILOT_TEACHER_PASSWORD){
+        pilotTeacherMode=true;
+        session={user:{id:'pilot-teacher',email:PILOT_TEACHER_EMAIL,user_metadata:{name:'Profesor Piloto',role:'teacher'}}};
+        profile={id:'pilot-teacher',name:'Profesor Piloto',role:'teacher'};
+        await loadData();
+        currentView='home';
+        await renderAuthenticated();
+        return;
+      }
+      const {error}=await supabase.auth.signInWithPassword({email,password});
       $('loginStatus').textContent=error?error.message:'Acceso correcto';
     };
     $('signupBtn').onclick=async()=>{
