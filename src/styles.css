@@ -37,3 +37,16 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 .quote-inner p{font-size:28px;line-height:1.08;letter-spacing:-.03em;margin:28px 0 18px;color:#fff}
 .quote-inner small{font-size:11px;color:#777;line-height:1.4}
 @media(max-width:560px){.quote-inner p{font-size:22px}}
+
+.introspection-repo{margin-top:20px;border-top:1px solid #222;padding-top:20px}
+.repo-head{display:flex;justify-content:space-between;gap:14px;align-items:end;margin-bottom:12px}
+.repo-head h2{margin-bottom:0}
+.intro-history{display:grid;gap:12px}
+.intro-entry{border:1px solid #292929;background:#080808;border-radius:12px;padding:16px}
+.intro-entry-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+.intro-entry-top small{color:#666}
+.intro-entry b{display:block;font-size:16px;margin-bottom:8px}
+.intro-entry p{margin:0;color:#c8c8c8}
+.empty-reflections{border:1px dashed #333;border-radius:12px;padding:26px;color:#777}
+.empty-reflections p{margin:0 0 6px;color:#aaa}
+.empty-reflections span{font-size:12px}
