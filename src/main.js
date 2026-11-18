@@ -623,7 +623,7 @@ async function loadData(){
     return;
   }
   if(profile?.role==='teacher'||profile?.role==='admin'){
-    const pr=await supabase.from('profiles').select('id,name,role,created_at').eq('role','student').order('name',{ascending:true});
+    const pr=await supabase.from('profiles').select('id,name,role').eq('role','student').order('name',{ascending:true});
     students=pr.data||[];
     if(pr.error) console.warn(pr.error);
   } else {
