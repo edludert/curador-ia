@@ -59,3 +59,9 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 .course-section-head h2{margin-bottom:0}
 #courseEvidenceGrid>.empty-reflections{grid-column:1/-1}
 @media(max-width:950px){.course-hero{grid-template-columns:1fr}}
+
+.course-link[data-state="completed"]{color:#fff!important}
+.course-link[data-state="current"]{color:#fff!important;border-color:#4a4a4a!important;background:#0b0b0b!important}
+.course-link[data-state="current"]:before{content:"EN CURSO";display:inline-block;font-size:9px;letter-spacing:.1em;color:#999;margin-bottom:8px}
+.course-link[data-state="future"]{color:#3a3a3a!important}
+.course-link[data-state="completed"] small:after{content:" · COMPLETADA";font-size:9px;color:#666}
