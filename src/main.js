@@ -119,7 +119,7 @@ function homeView(){
 
 function demoArchiveCards(){
   return DEMO_IMAGES.map((src,i)=>`
-    <article class="media-card ${i===0?'span7':'span5'}">
+    <article class="media-card ${i===0?'span7':'span5'}" data-kind="image">
       <img class="real-image" src="${src}" alt="Evidencia visual de proceso ${i+1}" loading="lazy" onerror="this.closest('.media-card').classList.add('img-error')">
       <div class="meta"><span class="type">Proceso visual</span><b>${['Exploración material','Bocetos y variaciones','Prueba de forma','Iteración y detalle'][i]}</b></div>
     </article>`).join('');
@@ -132,7 +132,7 @@ async function evidenceCard(e){
     src = data?.signedUrl || '';
   }
   return `
-  <article class="media-card span6">
+  <article class="media-card span6" data-kind="${src?'image':'file'}">
     ${src ? `<img class="real-image" src="${src}" alt="${esc(e.file_name)}">` : `<div class="file-placeholder">${esc(e.mime_type?.includes('pdf')?'PDF':'ARCHIVO')}</div>`}
     <div class="meta">
       <span class="type">Semestre ${esc(e.semester||'—')} · ${esc(e.course||'Sin materia')}</span>
@@ -140,6 +140,28 @@ async function evidenceCard(e){
       <p class="m">${esc(e.reflection||'')}</p>
     </div>
   </article>`;
+}
+
+function reflectionCards(){
+  const rows=evidence.filter(e=>e.reflection && e.reflection.trim());
+  if(!rows.length){
+    return `
+      <article class="media-card quote span6" data-kind="reflection">
+        <div class="quote-inner">
+          <span class="type">REFLEXIÓN</span>
+          <p>“¿Qué decisión de este proceso sientes que fue verdaderamente tuya?”</p>
+          <small>Ejemplo de reflexión · CURADOR.IA</small>
+        </div>
+      </article>`;
+  }
+  return rows.map(e=>`
+    <article class="media-card quote span6" data-kind="reflection">
+      <div class="quote-inner">
+        <span class="type">REFLEXIÓN · SEMESTRE ${esc(e.semester||'—')}</span>
+        <p>“${esc(e.reflection)}”</p>
+        <small>${esc(e.project||e.file_name||'Evidencia')} · ${esc(e.course||'')}</small>
+      </div>
+    </article>`).join('');
 }
 
 async function archiveView(){
@@ -150,7 +172,7 @@ async function archiveView(){
     <p class="lead">Aquí conviven bocetos, pruebas, mapas, textos, errores, decisiones, imágenes, videos y reflexiones. No es una galería de “finales”; es trazabilidad.</p>
     <div class="archive-toolbar">
       <button class="btn" id="openUpload">+ Nueva evidencia</button>
-      <div class="toggle"><button class="active">ALL</button><button>IMÁGENES</button><button>REFLEXIONES</button></div>
+      <div class="toggle"><button class="active" data-filter="all">ALL</button><button data-filter="image">IMÁGENES</button><button data-filter="reflection">REFLEXIONES</button></div>
     </div>
     <div id="uploadPanel" class="card upload-panel hidden">
       <div class="k">NUEVA EVIDENCIA</div><h2>Subir proceso</h2>
@@ -166,6 +188,7 @@ async function archiveView(){
     </div>
     <div class="media-grid" id="mediaGrid">
       ${dynamicCards.join('')}
+      ${reflectionCards()}
       ${evidence.length ? '' : demoArchiveCards()}
     </div>
   </section>`;
@@ -371,6 +394,15 @@ function populateCourses(){
 function bindView(){
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setView(b.dataset.go));
   if($('openUpload')) $('openUpload').onclick=()=>{$('uploadPanel').classList.toggle('hidden');populateSemesters();};
+  document.querySelectorAll('[data-filter]').forEach(btn=>btn.onclick=()=>{
+    document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+    const filter=btn.dataset.filter;
+    document.querySelectorAll('#mediaGrid .media-card').forEach(card=>{
+      const kind=card.dataset.kind;
+      card.classList.toggle('hidden', filter!=='all' && !(filter==='image' ? kind==='image' : kind===filter));
+    });
+  });
   if($('semester')) {$('semester').onchange=populateCourses;populateSemesters();}
   if($('uploadBtn')) $('uploadBtn').onclick=uploadEvidence;
   document.querySelectorAll('.cap-chip').forEach(b=>b.onclick=()=>{selectedCapability=b.dataset.cap;renderView();});
