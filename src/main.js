@@ -210,7 +210,7 @@ $('aiBtn').onclick=async()=>{
   })});
   const data=await r.json();
   if(!r.ok){$('aiOutput').textContent=data.error||'No se pudo analizar.';return}
-  $('aiOutput').innerHTML=`<b>Hipótesis:</b> ${data.hypothesis}<br><br><b>Pregunta:</b> ${data.question}<br><br><b>Capacidades:</b> ${data.capabilities.join(' · ')}`;
+  $('aiOutput').innerHTML=`${data.simulation?'<span class="tag">SIMULACIÓN</span><br><br>':''}<b>Hipótesis:</b> ${data.hypothesis}<br><br><b>Pregunta:</b> ${data.question}<br><br><b>Capacidades:</b> ${data.capabilities.join(' · ')}${data.note?'<br><br><span class="status">'+data.note+'</span>':''}`;
 };
 
 refresh();
