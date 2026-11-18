@@ -50,3 +50,12 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 .empty-reflections{border:1px dashed #333;border-radius:12px;padding:26px;color:#777}
 .empty-reflections p{margin:0 0 6px;color:#aaa}
 .empty-reflections span{font-size:12px}
+
+.back-link{border:0;background:transparent;color:#aaa;padding:0;margin-bottom:18px}
+.back-link:hover{color:#fff}
+.course-hero{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-bottom:22px}
+.course-hero .big-title{font-size:42px;line-height:1;letter-spacing:-.04em;margin-top:10px}
+.course-section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:18px 0 10px}
+.course-section-head h2{margin-bottom:0}
+#courseEvidenceGrid>.empty-reflections{grid-column:1/-1}
+@media(max-width:950px){.course-hero{grid-template-columns:1fr}}
