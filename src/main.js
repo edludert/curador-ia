@@ -151,8 +151,7 @@ function shellMarkup(){
       <div class="logo">CURADOR.IA</div>
       <div class="sub">Archivo vivo de proceso humano y ADN creativo.</div>
       <div class="who">
-        ${luciaDemoMode?'<div class="welcome-user">BIENVENIDA, LUCÍA</div>':''}
-        <b>${esc(profile?.name || session?.user?.email || 'Usuario')}</b>
+        <div class="welcome-user">Bienvenido(a), ${esc(profile?.name || session?.user?.email || 'Usuario')}</div>
         <span>${esc(profile?.role || 'usuario')}</span>
         ${pilotTeacherMode?'<span class="pilot-badge">MODO DEMO · no conectado a estudiantes reales</span>':''}
       </div>
@@ -169,7 +168,7 @@ function homeView(){
   return `
   <section class="view active clean-home">
     <div class="eyebrow">${profile?.role==='teacher'?'VISTA DOCENTE':'PERFIL EN CONSTRUCCIÓN'}</div>
-    ${luciaDemoMode?'<div class="home-welcome">BIENVENIDA, LUCÍA</div>':''}
+    ${profile?.role==='student'?'<div class="home-welcome">Bienvenido(a), '+esc(profile?.name || session?.user?.email || 'Estudiante')+'</div>':''}
     <h1>Haz visible cómo piensas, decides y creas.</h1>
     <p class="intro">CURADOR.IA acompaña la trayectoria y convierte evidencias, decisiones, reflexiones y feedback en un archivo vivo de proceso humano y ADN creativo.</p>
     <div class="home-actions">
