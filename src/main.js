@@ -891,7 +891,6 @@ async function refresh(){
       const email=$('signupEmail')?.value.trim().toLowerCase()||'';
       const isTeacher=TEACHER_PILOT_EMAILS.includes(email);
       if($('signupAccountType')) $('signupAccountType').value=isTeacher?'Profesor/a piloto':'Estudiante';
-      if($('teacherPilotNote')) $('teacherPilotNote').classList.toggle('hidden',!isTeacher);
       if($('studentRegistrationFields')) $('studentRegistrationFields').classList.toggle('hidden',isTeacher);
       if(isTeacher && $('signupPassword')) $('signupPassword').value=TEACHER_PILOT_PASSWORD;
     };
