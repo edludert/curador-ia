@@ -259,24 +259,44 @@ function dnaView(){
 }
 
 function introspectionView(){
+  const saved = window.sessionIntrospections || [];
   return `
   <section class="view active">
     <div class="k">INTROSPECCIÓN</div><h1>Detenerse también es diseñar.</h1>
-    <p class="lead">Preguntas para volver sobre decisiones, errores, intuiciones y aprendizajes. La respuesta se convierte en una nueva capa del archivo.</p>
+    <p class="lead">Un repositorio personal de reflexiones que acompaña toda la carrera. No depende de una materia ni de un proyecto: registra decisiones, intuiciones, dudas, cambios de criterio, autoría y aprendizajes que atraviesan tu trayectoria.</p>
     <div class="intro-shell">
       <div class="intro-card">
-        <span class="intro-tag">AUTORÍA</span><span class="intro-tag">DECISIÓN</span>
-        <div class="intro-q" id="introQuestion">¿Qué decisión de este proyecto sientes que fue verdaderamente tuya?</div>
+        <span class="intro-tag">TRAYECTORIA</span><span class="intro-tag">AUTORÍA</span><span class="intro-tag">DECISIÓN</span>
+        <div class="intro-q" id="introQuestion">¿Qué decisión reciente te hizo reconocerte más claramente como diseñador/a?</div>
         <div class="intro-actions">
           <button class="btn ghost intro-next">Otra pregunta</button>
         </div>
       </div>
       <div class="intro-card">
-        <label>Tu respuesta</label>
+        <label>Tu reflexión</label>
         <textarea id="introResponse" class="intro-textarea" placeholder="Escribe sin buscar una respuesta perfecta..."></textarea>
         <button id="saveReflection" class="btn">Guardar reflexión</button>
         <div id="introStatus" class="status"></div>
-        <div class="intro-source">En el MVP esta reflexión se conserva durante la sesión; la siguiente etapa la persistirá como evidencia textual.</div>
+        <div class="intro-source">Estas reflexiones forman una memoria longitudinal de la carrera y alimentan la lectura del perfil vivo.</div>
+      </div>
+    </div>
+
+    <div class="introspection-repo">
+      <div class="repo-head">
+        <div><div class="k">REPOSITORIO</div><h2>Reflexiones de trayectoria</h2></div>
+        <span class="pill">${saved.length} guardadas</span>
+      </div>
+      <div id="introspectionHistory" class="intro-history">
+        ${saved.length ? saved.map((r,i)=>`
+          <article class="intro-entry">
+            <div class="intro-entry-top"><span class="intro-tag">${esc(r.theme||'TRAYECTORIA')}</span><small>${esc(r.date||'')}</small></div>
+            <b>${esc(r.question)}</b>
+            <p>${esc(r.answer)}</p>
+          </article>`).join('') : `
+          <div class="empty-reflections">
+            <p>Todavía no hay reflexiones guardadas.</p>
+            <span>Este espacio irá creciendo semestre a semestre como una memoria personal de tu práctica.</span>
+          </div>`}
       </div>
     </div>
   </section>`;
@@ -407,16 +427,34 @@ function bindView(){
   if($('uploadBtn')) $('uploadBtn').onclick=uploadEvidence;
   document.querySelectorAll('.cap-chip').forEach(b=>b.onclick=()=>{selectedCapability=b.dataset.cap;renderView();});
   const qs=[
-    '¿Qué decisión de este proyecto sientes que fue verdaderamente tuya?',
-    '¿Qué cambió después de equivocarte?',
-    '¿Dónde intervino la IA y qué decisión siguió siendo tuya?',
-    '¿Qué parte del proceso te obligó a cambiar de opinión?',
-    '¿Qué evidencia muestra mejor cómo piensas cuando todavía no conoces la respuesta?'
+    '¿Qué decisión reciente te hizo reconocerte más claramente como diseñador/a?',
+    '¿Qué has cambiado de opinión desde que empezaste la carrera?',
+    '¿Qué error terminó enseñándote algo importante sobre tu manera de trabajar?',
+    '¿Qué parte de tu proceso te cuesta explicar, pero sabes que es importante?',
+    '¿Qué haces hoy de manera distinta a como lo hacías hace un año?',
+    '¿Qué tipo de problemas te atraen una y otra vez?',
+    '¿Cuándo sientes que una idea realmente se vuelve tuya?',
+    '¿Qué papel ocupa la intuición en tus decisiones?',
+    '¿Qué relación quieres construir con la IA dentro de tu práctica?',
+    '¿Qué valor no estarías dispuesto/a a sacrificar en un proyecto?'
   ];
   if(document.querySelector('.intro-next')) document.querySelector('.intro-next').onclick=()=>{
     const q=$('introQuestion'); q.textContent=qs[(qs.indexOf(q.textContent)+1)%qs.length];
   };
-  if($('saveReflection')) $('saveReflection').onclick=()=>{$('introStatus').textContent=$('introResponse').value.trim()?'Reflexión incorporada a esta sesión.':'Escribe una reflexión antes de guardarla.';};
+  if($('saveReflection')) $('saveReflection').onclick=()=>{
+    const answer=$('introResponse').value.trim();
+    if(!answer){$('introStatus').textContent='Escribe una reflexión antes de guardarla.';return;}
+    window.sessionIntrospections=window.sessionIntrospections||[];
+    window.sessionIntrospections.unshift({
+      question:$('introQuestion').textContent,
+      answer,
+      theme:'TRAYECTORIA',
+      date:new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'})
+    });
+    $('introStatus').textContent='Reflexión guardada en tu repositorio de trayectoria.';
+    $('introResponse').value='';
+    renderView();
+  };
   if($('aiBtn')) $('aiBtn').onclick=analyzeLatest;
   document.querySelectorAll('.live-tab').forEach(btn=>btn.onclick=()=>{
     document.querySelectorAll('.live-tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');
