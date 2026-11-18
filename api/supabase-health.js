@@ -1,5 +1,5 @@
 export default async function handler(req,res){
-  const url='https://crsqlxzivmrocvtooknu.supabase.co';
+  const url='https://crsqlxzivmrocvtoonku.supabase.co';
   const key='sb_publishable_ZIof7M3OQ6gpz6dCYq2n4Q_PmJMLIjH';
   try{
     const r=await fetch(url+'/auth/v1/health',{headers:{apikey:key}});
