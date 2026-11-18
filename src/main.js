@@ -135,7 +135,7 @@ function authMarkup(){
 
 function navItems(){
   const student = [
-    ['home','Inicio'],['archive','Archivo'],['courses','Materias'],['capabilities','Capacidades'],
+    ['home','Inicio'],['upload','Subir proceso'],['archive','Archivo'],['courses','Materias'],['capabilities','Capacidades'],
     ['dna','ADN'],['introspection','Introspección'],['curator','CURADOR.IA'],['profile','Perfil vivo']
   ];
   const teacher = [
@@ -230,6 +230,73 @@ function reflectionCards(){
         <small>${esc(e.project||e.file_name||'Evidencia')} · ${esc(e.course||'')}</small>
       </div>
     </article>`).join('');
+}
+
+function uploadView(){
+  return `
+  <section class="view active">
+    <div class="k">NUEVA ENTRADA</div>
+    <h1>Documentar un proyecto</h1>
+    <p class="lead">La unidad básica no es el archivo: es el proyecto + su proceso.</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <div class="field"><label>Semestre</label><select id="semester"></select></div>
+        <div class="field"><label>Materia</label><select id="course"></select></div>
+        <div class="field"><label>Nombre del proyecto</label><input id="projectName" placeholder="Nombre del proyecto"></div>
+        <div class="field"><label>Brief / reto</label><textarea id="brief" placeholder="¿Cuál era el reto o punto de partida del proyecto?"></textarea></div>
+        <div class="notice">Cada proyecto queda ligado a una materia y semestre para construir la trazabilidad completa de la trayectoria.</div>
+      </div>
+
+      <div class="card">
+        <div class="k">PROCESO HUMANO</div>
+        <h2>Sube evidencia, no sólo entregables</h2>
+        <div class="types">
+          <div class="type"><b>Bocetos</b><small class="m">sketches, thumbnails</small></div>
+          <div class="type"><b>Mapas</b><small class="m">conceptos, sistemas</small></div>
+          <div class="type"><b>Textos</b><small class="m">notas, bitácora</small></div>
+          <div class="type"><b>Pruebas</b><small class="m">prototipos, errores</small></div>
+          <div class="type"><b>Contexto</b><small class="m">campo, materiales</small></div>
+          <div class="type"><b>Reflexiones</b><small class="m">qué cambió y por qué</small></div>
+        </div>
+        <div class="drop" id="drop">
+          <input id="files" type="file" multiple accept="image/*,.pdf,.txt,.md,.doc,.docx">
+          <b>Arrastra aquí tu proceso</b>
+          <p class="m">o</p>
+          <button id="pick" type="button" class="btn ghost small">Seleccionar archivos</button>
+          <p class="m mini">Imágenes · PDF · texto · documentos</p>
+        </div>
+        <div id="fileList" class="files"></div>
+      </div>
+    </div>
+
+    <div class="grid g2 upload-reflection-grid">
+      <div class="card">
+        <div class="field"><label>¿Cuál fue tu intención?</label><textarea id="intent" placeholder="¿Qué querías explorar, provocar o comprender?"></textarea></div>
+        <div class="field"><label>¿Qué decisión consideras verdaderamente tuya?</label><textarea id="decision" placeholder="Una decisión que reconoces como propia."></textarea></div>
+        <div class="field"><label>¿Qué salió mal, cambió o te hizo dudar?</label><textarea id="friction" placeholder="Errores, cambios, contradicciones o momentos de duda."></textarea></div>
+        <div class="field"><label>¿Dónde intervino IA?</label><textarea id="aiUse" placeholder="Si utilizaste IA, explica dónde intervino y qué decisiones siguieron siendo tuyas."></textarea></div>
+      </div>
+
+      <div>
+        <div class="curator" id="curate">
+          <div class="k">CURADOR IA · BORRADOR</div>
+          <h2>Lo que parece importante conservar</h2>
+          <div id="curateDraft">
+            <p class="m">Cuando completes la entrada, CURADOR.IA señalará decisiones, fricciones y evidencias que podrían ser importantes para tu trayectoria.</p>
+          </div>
+          <button id="curateUploadBtn" type="button" class="btn">Curar esta entrada</button>
+        </div>
+        <div class="card upload-meta-card">
+          <div class="k">METADATA</div>
+          <div class="row"><span class="pill">proceso</span><span class="pill">decisión</span><span class="pill">autoría</span><span class="pill">aprendizaje</span></div>
+          <p class="m mini mono">autoría_humana: por documentar · uso_ia: por declarar · reflexión: requerida</p>
+        </div>
+        <button id="saveProcessBtn" class="btn save-process-btn">Guardar proyecto + proceso</button>
+        <div id="uploadStatus" class="status"></div>
+      </div>
+    </div>
+  </section>`;
 }
 
 async function archiveView(){
@@ -512,6 +579,7 @@ async function renderView(){
   if(!main) return;
   const views={
     home:()=>homeView(),
+    upload:()=>uploadView(),
     archive:()=>archiveView(),
     courses:()=>coursesView(),
     courseDetail:()=>courseDetailView(),
@@ -547,7 +615,7 @@ function populateCourses(){
 
 function bindView(){
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setView(b.dataset.go));
-  if($('homeAddEvidence')) $('homeAddEvidence').onclick=()=>{openUploadOnArchive=true;setView('archive');};
+  if($('homeAddEvidence')) $('homeAddEvidence').onclick=()=>setView('upload');
   document.querySelectorAll('.course-link[data-course]').forEach(btn=>btn.onclick=()=>{
     selectedCourse={code:btn.dataset.course,name:btn.dataset.courseName,semester:btn.dataset.sem};
     setView('courseDetail');
@@ -565,6 +633,10 @@ function bindView(){
     });
   });
   if($('semester')) {$('semester').onchange=populateCourses;populateSemesters();}
+  if($('pick')&&$('files')) $('pick').onclick=()=>$('files').click();
+  if($('files')) $('files').onchange=renderSelectedFiles;
+  if($('curateUploadBtn')) $('curateUploadBtn').onclick=curateProcessDraft;
+  if($('saveProcessBtn')) $('saveProcessBtn').onclick=uploadProcess;
   if($('uploadBtn')) $('uploadBtn').onclick=uploadEvidence;
   document.querySelectorAll('.cap-chip').forEach(b=>b.onclick=()=>{selectedCapability=b.dataset.cap;renderView();});
   const qs=[
@@ -607,6 +679,61 @@ function bindView(){
   });
   if($('feedbackBtn')) $('feedbackBtn').onclick=sendFeedback;
   if(currentView==='courseDetail') hydrateCourseEvidence();
+}
+
+function renderSelectedFiles(){
+  const list=$('fileList');
+  if(!list||!$('files')) return;
+  const files=[...$('files').files];
+  list.innerHTML=files.length?files.map(f=>`<div class="file-row"><span>${esc(f.name)}</span><small>${Math.max(1,Math.round(f.size/1024))} KB</small></div>`).join(''):'';
+}
+
+function curateProcessDraft(){
+  const intent=$('intent')?.value.trim();
+  const decision=$('decision')?.value.trim();
+  const friction=$('friction')?.value.trim();
+  const ai=$('aiUse')?.value.trim();
+  const items=[
+    decision&&`La decisión propia: ${esc(decision)}`,
+    friction&&`La fricción o cambio: ${esc(friction)}`,
+    intent&&`La intención inicial: ${esc(intent)}`,
+    ai&&`La intervención de IA y sus límites: ${esc(ai)}`
+  ].filter(Boolean);
+  $('curateDraft').innerHTML=items.length?`<ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul><p class="m">La IA sugiere qué conviene conservar. Tú decides qué entra.</p>`:'<p class="m">Completa algunas reflexiones para generar una lectura preliminar.</p>';
+}
+
+async function uploadProcess(){
+  const files=[...($('files')?.files||[])];
+  const project=$('projectName')?.value.trim();
+  if(!project){$('uploadStatus').textContent='Escribe el nombre del proyecto.';return;}
+  if(!files.length){$('uploadStatus').textContent='Selecciona al menos un archivo de proceso.';return;}
+  const reflection=[
+    $('brief')?.value.trim()&&`Brief / reto: ${$('brief').value.trim()}`,
+    $('intent')?.value.trim()&&`Intención: ${$('intent').value.trim()}`,
+    $('decision')?.value.trim()&&`Decisión propia: ${$('decision').value.trim()}`,
+    $('friction')?.value.trim()&&`Fricción / cambio: ${$('friction').value.trim()}`,
+    $('aiUse')?.value.trim()&&`Intervención de IA: ${$('aiUse').value.trim()}`
+  ].filter(Boolean).join('\n\n');
+  $('uploadStatus').textContent='Guardando proceso…';
+  for(const file of files){
+    const path=`${session.user.id}/${crypto.randomUUID()}-${file.name}`;
+    const up=await supabase.storage.from('evidence').upload(path,file);
+    if(up.error){$('uploadStatus').textContent=up.error.message;return;}
+    const row=await supabase.from('evidence').insert({
+      student_id:session.user.id,
+      semester:Number($('semester').value),
+      course:$('course').value,
+      project,
+      reflection,
+      file_path:path,
+      file_name:file.name,
+      mime_type:file.type||'application/octet-stream'
+    });
+    if(row.error){$('uploadStatus').textContent=row.error.message;return;}
+  }
+  $('uploadStatus').textContent=`Proyecto guardado con ${files.length} evidencia${files.length===1?'':'s'}.`;
+  await loadData();
+  setView('archive');
 }
 
 async function uploadEvidence(){
