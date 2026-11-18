@@ -62,6 +62,7 @@ let currentView = 'home';
 let latestReading = null;
 let selectedCapability = 'Experimentación';
 let selectedCourse = null;
+let openUploadOnArchive = false;
 const allEvidence = () => [...evidence, ...demoEvidence.filter(d=>!evidence.some(e=>e.id===d.id))];
 
 const $ = id => document.getElementById(id);
@@ -129,7 +130,8 @@ function homeView(){
     <h1>Haz visible cómo piensas, decides y creas.</h1>
     <p class="intro">CURADOR.IA acompaña la trayectoria y convierte evidencias, decisiones, reflexiones y feedback en un archivo vivo de proceso humano y ADN creativo.</p>
     <div class="home-actions">
-      <button class="btn" data-go="${profile?.role==='teacher'?'review':'archive'}">${profile?.role==='teacher'?'Revisar procesos':'Abrir archivo'}</button>
+      ${profile?.role==='teacher'?'':'<button class="btn" id="homeAddEvidence">+ Agregar evidencia</button>'}
+      <button class="btn ghost" data-go="${profile?.role==='teacher'?'review':'archive'}">${profile?.role==='teacher'?'Revisar procesos':'Abrir archivo'}</button>
       <button class="btn ghost" data-go="${profile?.role==='teacher'?'feedback':'curator'}">${profile?.role==='teacher'?'Dar feedback':'Hablar con CURADOR.IA'}</button>
     </div>
     <div class="home-index">
@@ -198,7 +200,7 @@ async function archiveView(){
       <button class="btn" id="openUpload">+ Nueva evidencia</button>
       <div class="toggle"><button class="active" data-filter="all">ALL</button><button data-filter="image">IMÁGENES</button><button data-filter="reflection">REFLEXIONES</button></div>
     </div>
-    <div id="uploadPanel" class="card upload-panel hidden">
+    <div id="uploadPanel" class="card upload-panel ${openUploadOnArchive?'':'hidden'}">
       <div class="k">NUEVA EVIDENCIA</div><h2>Subir proceso</h2>
       <div class="g2 grid">
         <div class="field"><label>Semestre</label><select id="semester"></select></div>
@@ -498,12 +500,14 @@ function populateCourses(){
 
 function bindView(){
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setView(b.dataset.go));
+  if($('homeAddEvidence')) $('homeAddEvidence').onclick=()=>{openUploadOnArchive=true;setView('archive');};
   document.querySelectorAll('.course-link[data-course]').forEach(btn=>btn.onclick=()=>{
     selectedCourse={code:btn.dataset.course,name:btn.dataset.courseName,semester:btn.dataset.sem};
     setView('courseDetail');
   });
   if($('backToCourses')) $('backToCourses').onclick=()=>{selectedCourse=null;setView('courses');};
   if($('openUpload')) $('openUpload').onclick=()=>{$('uploadPanel').classList.toggle('hidden');populateSemesters();};
+  if(currentView==='archive' && openUploadOnArchive){populateSemesters();openUploadOnArchive=false;}
   document.querySelectorAll('[data-filter]').forEach(btn=>btn.onclick=()=>{
     document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));
     btn.classList.add('active');
