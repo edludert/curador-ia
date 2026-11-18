@@ -4,6 +4,10 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://crsqlxzivmrocv
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_ZIof7M3OQ6gpz6dCYq2n4Q_PmJMLIjH';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const LUCIA_DEMO_EMAIL='lucia@curador.ia';
+const LUCIA_DEMO_PASSWORD='LuciaPiloto2026!';
+let luciaDemoMode=false;
+
 const PILOT_TEACHER_EMAIL='profesor@curador.ia';
 const PILOT_TEACHER_PASSWORD='Curador2026!';
 const TEACHER_PILOT_PASSWORD='CuradorPiloto2026!';
@@ -113,7 +117,8 @@ function authMarkup(){
         <div class="field"><label>Email</label><input id="loginEmail" type="email"></div>
         <div class="field"><label>Contraseña</label><input id="loginPassword" type="password"></div>
         <button id="loginBtn" class="btn">Entrar</button>
-        <div id="loginStatus" class="status"></div>\n        <div class="pilot-access-hint">Docentes piloto: usa tu correo institucional autorizado + contraseña <b>${TEACHER_PILOT_PASSWORD}</b></div>
+        <div id="loginStatus" class="status"></div>
+        <div class="pilot-access-hint">Estudiante demo: <b>${LUCIA_DEMO_EMAIL}</b> · contraseña <b>${LUCIA_DEMO_PASSWORD}</b></div>\n        <div class="pilot-access-hint">Docentes piloto: usa tu correo institucional autorizado + contraseña <b>${TEACHER_PILOT_PASSWORD}</b></div>
       </section>
       <section class="card">
         <div class="k">PRUEBA PILOTO</div><h2>Crear cuenta</h2>
@@ -146,6 +151,7 @@ function shellMarkup(){
       <div class="logo">CURADOR.IA</div>
       <div class="sub">Archivo vivo de proceso humano y ADN creativo.</div>
       <div class="who">
+        ${luciaDemoMode?'<div class="welcome-user">BIENVENIDA, LUCÍA</div>':''}
         <b>${esc(profile?.name || session?.user?.email || 'Usuario')}</b>
         <span>${esc(profile?.role || 'usuario')}</span>
         ${pilotTeacherMode?'<span class="pilot-badge">MODO DEMO · no conectado a estudiantes reales</span>':''}
@@ -163,6 +169,7 @@ function homeView(){
   return `
   <section class="view active clean-home">
     <div class="eyebrow">${profile?.role==='teacher'?'VISTA DOCENTE':'PERFIL EN CONSTRUCCIÓN'}</div>
+    ${luciaDemoMode?'<div class="home-welcome">BIENVENIDA, LUCÍA</div>':''}
     <h1>Haz visible cómo piensas, decides y creas.</h1>
     <p class="intro">CURADOR.IA acompaña la trayectoria y convierte evidencias, decisiones, reflexiones y feedback en un archivo vivo de proceso humano y ADN creativo.</p>
     <div class="home-actions">
@@ -381,7 +388,7 @@ function dnaView(){
 }
 
 function introspectionView(){
-  const saved = window.sessionIntrospections || demoCareerReflections;
+  const saved = luciaDemoMode ? (window.sessionIntrospections || demoCareerReflections) : (window.sessionIntrospections || demoCareerReflections);
   return `
   <section class="view active">
     <div class="k">INTROSPECCIÓN</div><h1>Detenerse también es diseñar.</h1>
@@ -642,6 +649,7 @@ async function sendFeedback(){
 }
 
 async function loadProfile(){
+  if(luciaDemoMode){profile={id:'demo-lucia',name:'Lucía Romo',role:'student'};return;}
   if(pilotTeacherMode){profile={id:'pilot-teacher',name:'Profesor Piloto',role:'teacher'};return;}
   const {data,error}=await supabase.from('profiles').select('*').eq('id',session.user.id).single();
   if(error) console.warn(error);
@@ -649,6 +657,12 @@ async function loadProfile(){
 }
 
 async function loadData(){
+  if(luciaDemoMode){
+    evidence=demoEvidence.map(e=>({...e,student_id:'demo-lucia',profiles:{name:'Lucía Romo'}}));
+    feedback=[];
+    students=[];
+    return;
+  }
   if(pilotTeacherMode){
     evidence=[...demoStudentEvidence];
     feedback=[];
@@ -673,12 +687,19 @@ async function loadData(){
 
 async function renderAuthenticated(){
   app.innerHTML=shellMarkup();
-  $('logoutBtn').onclick=()=>{if(pilotTeacherMode){pilotTeacherMode=false;session=null;profile=null;refresh();}else{supabase.auth.signOut();}};
+  $('logoutBtn').onclick=()=>{if(luciaDemoMode){luciaDemoMode=false;session=null;profile=null;refresh();}else if(pilotTeacherMode){pilotTeacherMode=false;session=null;profile=null;refresh();}else{supabase.auth.signOut();}};
   document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>setView(b.dataset.view));
   await renderView();
 }
 
 async function refresh(){
+  if(luciaDemoMode){
+    session={user:{id:'demo-lucia',email:LUCIA_DEMO_EMAIL,user_metadata:{name:'Lucía Romo',role:'student'}}};
+    profile={id:'demo-lucia',name:'Lucía Romo',role:'student'};
+    await loadData();
+    await renderAuthenticated();
+    return;
+  }
   if(pilotTeacherMode){
     session={user:{id:'pilot-teacher',email:PILOT_TEACHER_EMAIL,user_metadata:{name:'Profesor Piloto',role:'teacher'}}};
     profile={id:'pilot-teacher',name:'Profesor Piloto',role:'teacher'};
@@ -689,7 +710,7 @@ async function refresh(){
   const {data:{session:s}}=await supabase.auth.getSession();
   session=s;
   if(!session){
-    profile=null;evidence=[];feedback=[];students=[];currentView='home';
+    profile=null;evidence=[];feedback=[];students=[];luciaDemoMode=false;currentView='home';
     app.innerHTML=authMarkup();
     const enterPilotTeacher=async()=>{
       pilotTeacherMode=true;
@@ -702,6 +723,15 @@ async function refresh(){
     $('loginBtn').onclick=async()=>{
       const email=$('loginEmail').value.trim().toLowerCase();
       const password=$('loginPassword').value.trim();
+      if(email===LUCIA_DEMO_EMAIL.toLowerCase() && password===LUCIA_DEMO_PASSWORD){
+        luciaDemoMode=true;
+        session={user:{id:'demo-lucia',email:LUCIA_DEMO_EMAIL,user_metadata:{name:'Lucía Romo',role:'student'}}};
+        profile={id:'demo-lucia',name:'Lucía Romo',role:'student'};
+        await loadData();
+        currentView='home';
+        await renderAuthenticated();
+        return;
+      }
       if(email===PILOT_TEACHER_EMAIL.toLowerCase() && password===PILOT_TEACHER_PASSWORD){
         await enterPilotTeacher();
         return;
