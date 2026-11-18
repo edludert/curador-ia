@@ -129,3 +129,18 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 
 .welcome-user{font-size:10px;letter-spacing:.12em;color:#fff;margin-bottom:8px}
 .home-welcome{font-size:12px;letter-spacing:.14em;color:#fff;margin:6px 0 14px}
+
+.upload-reflection-grid{margin-top:16px}
+.drop{position:relative;border:1px dashed #383838;border-radius:12px;padding:28px;text-align:center;margin-top:14px;background:#050505}
+.drop input[type="file"]{position:absolute;inset:0;opacity:0;pointer-events:none}
+.files{display:grid;gap:8px;margin-top:12px}
+.file-row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #222;padding:9px 0;font-size:12px}
+.file-row small{color:#666}
+.upload-meta-card{margin-top:14px}
+.save-process-btn{width:100%;margin-top:14px}
+.mono{font-family:monospace}
+.types{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.types .type{border:1px solid #282828;border-radius:10px;padding:12px;background:#080808}
+.types .type b{display:block;margin-bottom:3px}
+.types .type small{font-size:10px}
+@media(max-width:760px){.types{grid-template-columns:1fr 1fr}}
