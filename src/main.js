@@ -31,6 +31,28 @@ const capabilities = [
   ['IA',['Alfabetización en IA','Interacción con IA','Orquestación de IA','Evaluación de outputs','Detección de sesgos','Trazabilidad','Autoría']]
 ];
 
+const demoEvidence = [
+  {id:'demo-01',semester:1,course:'AR1029 · Dibujo y expresión gráfica',project:'Cuerpo, línea y observación',reflection:'Descubrí que dibujar más lento me obliga a observar relaciones que normalmente doy por hechas. El dibujo empezó a funcionar como una forma de entender, no sólo de representar.',file_name:'01.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[0]},
+  {id:'demo-02',semester:1,course:'DL1024 · Métodos creativos',project:'Variaciones imposibles',reflection:'Cuando dejé de buscar una primera idea “correcta”, aparecieron conexiones más inesperadas. Repetir y variar fue más útil que elegir demasiado pronto.',file_name:'02.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[1]},
+  {id:'demo-03',semester:1,course:'AR1010B · Fundamentos de diseño',project:'Sistema y composición',reflection:'Entendí que una decisión formal nunca está aislada. Cambiar proporción, ritmo o jerarquía modifica todo el sistema.',file_name:'03.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[2]},
+  {id:'demo-04',semester:1,course:'A1001B · Historia del arte, diseño y ciudad',project:'Lecturas de ciudad',reflection:'Empecé a mirar la ciudad como una superposición de decisiones, memorias y conflictos. Diseñar también implica aprender a leer lo que ya existe.',file_name:'04.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[3]},
+
+  {id:'demo-05',semester:2,course:'A1002B · Programación creativa',project:'Reglas que dibujan',reflection:'Programar me obligó a pensar en reglas antes que en formas. Me interesó perder un poco de control y observar lo que el sistema podía producir.',file_name:'01.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[1]},
+  {id:'demo-06',semester:2,course:'A1003B · Experimentación digital',project:'Error digital',reflection:'Un fallo visual dejó de ser un problema cuando entendí que podía convertirse en lenguaje. El error empezó a funcionar como material.',file_name:'02.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[2]},
+  {id:'demo-07',semester:2,course:'AR1030 · Investigación para industrias creativas',project:'Observar antes de proponer',reflection:'Me di cuenta de que muchas veces quería diseñar demasiado pronto. Aprender a observar y formular mejores preguntas cambió la manera en que inicio un proyecto.',file_name:'03.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[3]},
+  {id:'demo-08',semester:2,course:'AR1031 · Análisis y visualización de datos',project:'Patrones invisibles',reflection:'Visualizar información me ayudó a encontrar relaciones que no había visto en una tabla. La representación también produce conocimiento.',file_name:'04.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[0]},
+
+  {id:'demo-09',semester:3,course:'DL1001B · Estudio diseño I',project:'Objeto y comportamiento',reflection:'Todavía estoy entendiendo cuándo una decisión formal realmente responde al comportamiento que quiero provocar y cuándo sólo responde a una preferencia estética.',file_name:'01.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[2]},
+  {id:'demo-10',semester:3,course:'DL1026 · Materiales I',project:'Aprender con la materia',reflection:'Estoy empezando a confiar más en lo que el material me obliga a cambiar. A veces el proyecto mejora cuando dejo de imponerle una forma.',file_name:'02.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[3]},
+  {id:'demo-11',semester:3,course:'DL1027 · Dibujo y representación',project:'Representar para decidir',reflection:'Uso el dibujo para comparar posibilidades antes de comprometerme con una solución. Me sirve para pensar rápido y también para cuestionar lo que creía resuelto.',file_name:'03.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[0]}
+];
+
+const demoCareerReflections = [
+  {question:'¿Qué ha cambiado en tu manera de diseñar desde que empezaste la carrera?',answer:'Antes pensaba que diseñar era llegar rápido a una buena forma. Ahora me interesa más entender qué decisiones me llevaron hasta ahí y qué aprendí durante el proceso.',theme:'TRAYECTORIA',date:'Ago 2026'},
+  {question:'¿Qué error terminó enseñándote algo importante sobre tu manera de trabajar?',answer:'Descubrí que cuando intento controlar demasiado pronto el resultado, dejo de ver posibilidades. Equivocarme me ayuda a abrir el proyecto.',theme:'ERROR',date:'Sep 2026'},
+  {question:'¿Qué parte de tu proceso reconoces como especialmente tuya?',answer:'Necesito dibujar, hacer listas, mover referencias y probar físicamente antes de sentir que entiendo un problema.',theme:'AUTORÍA',date:'Oct 2026'}
+];
+
 const app = document.querySelector('#app');
 let session = null;
 let profile = null;
@@ -40,6 +62,7 @@ let currentView = 'home';
 let latestReading = null;
 let selectedCapability = 'Experimentación';
 let selectedCourse = null;
+const allEvidence = () => [...evidence, ...demoEvidence.filter(d=>!evidence.some(e=>e.id===d.id))];
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -98,8 +121,8 @@ function shellMarkup(){
 }
 
 function homeView(){
-  const total = evidence.length || 4;
-  const sems = [...new Set(evidence.map(e=>e.semester).filter(Boolean))].length || 1;
+  const total = allEvidence().length;
+  const sems = [...new Set(allEvidence().map(e=>e.semester).filter(Boolean))].length;
   return `
   <section class="view active clean-home">
     <div class="eyebrow">${profile?.role==='teacher'?'VISTA DOCENTE':'PERFIL EN CONSTRUCCIÓN'}</div>
@@ -127,8 +150,8 @@ function demoArchiveCards(){
 }
 
 async function evidenceCard(e){
-  let src = '';
-  if(e.mime_type?.startsWith('image/') && e.file_path){
+  let src = e.demo_image || '';
+  if(!src && e.mime_type?.startsWith('image/') && e.file_path){
     const {data} = await supabase.storage.from('evidence').createSignedUrl(e.file_path, 3600);
     src = data?.signedUrl || '';
   }
@@ -144,7 +167,7 @@ async function evidenceCard(e){
 }
 
 function reflectionCards(){
-  const rows=evidence.filter(e=>e.reflection && e.reflection.trim());
+  const rows=allEvidence().filter(e=>e.reflection && e.reflection.trim());
   if(!rows.length){
     return `
       <article class="media-card quote span6" data-kind="reflection">
@@ -166,7 +189,7 @@ function reflectionCards(){
 }
 
 async function archiveView(){
-  const dynamicCards = await Promise.all(evidence.map(evidenceCard));
+  const dynamicCards = await Promise.all(allEvidence().map(evidenceCard));
   return `
   <section class="view active">
     <div class="k">ARCHIVO VIVO</div><h1>Proceso antes que resultado.</h1>
@@ -190,7 +213,7 @@ async function archiveView(){
     <div class="media-grid" id="mediaGrid">
       ${dynamicCards.join('')}
       ${reflectionCards()}
-      ${evidence.length ? '' : demoArchiveCards()}
+      
     </div>
   </section>`;
 }
@@ -204,7 +227,11 @@ function coursesView(){
       <div class="semester-block">
         <div class="semester-number">0${sem}</div>
         <div class="course-list">
-          ${items.map(([code,name])=>`<button class="course-link" data-sem="${sem}" data-course="${esc(code)}" data-course-name="${esc(name)}"><strong>${esc(name)}</strong><small>${code}</small></button>`).join('')}
+          ${items.map(([code,name])=>{
+            const count=allEvidence().filter(e=>String(e.course||'').startsWith(code+' ·')||String(e.course||'')===code).length;
+            const state=Number(sem)<3?'completed':Number(sem)===3?'current':'future';
+            return `<button class="course-link" data-sem="${sem}" data-state="${state}" data-course="${esc(code)}" data-course-name="${esc(name)}"><strong>${esc(name)}</strong><small>${code}${count?' · '+count+' evid.':''}</small></button>`;
+          }).join('')}
         </div>
       </div>`).join('')}
   </section>`;
@@ -212,7 +239,7 @@ function coursesView(){
 
 function courseDetailView(){
   if(!selectedCourse) return coursesView();
-  const matches=evidence.filter(e=>{
+  const matches=allEvidence().filter(e=>{
     const course=String(e.course||'');
     return course.startsWith(selectedCourse.code+' ·') || course===selectedCourse.code || course.includes(selectedCourse.name);
   });
@@ -257,7 +284,7 @@ function courseDetailView(){
 async function hydrateCourseEvidence(){
   const grid=$('courseEvidenceGrid');
   if(!grid || !selectedCourse) return;
-  const matches=evidence.filter(e=>{
+  const matches=allEvidence().filter(e=>{
     const course=String(e.course||'');
     return course.startsWith(selectedCourse.code+' ·') || course===selectedCourse.code || course.includes(selectedCourse.name);
   });
@@ -281,7 +308,7 @@ function capabilitiesView(){
       <div class="skill-detail">
         <div class="k">LECTURA ACTUAL</div><div class="big" id="capTitle">${esc(selectedCapability)}</div>
         <p class="m" id="capText">${capabilityDescription(selectedCapability)}</p>
-        <div class="cap-evidence">${evidence.length ? `${evidence.length} evidencias disponibles para contrastar esta capacidad.` : 'En el prototipo esta capacidad se conectará con recurrencias del archivo.'}</div>
+        <div class="cap-evidence">${allEvidence().length} evidencias disponibles para contrastar esta capacidad.</div>
       </div>
       <div class="card"><div class="k">PRINCIPIO</div><h2>Evidencia antes que etiqueta.</h2><p class="m">CURADOR.IA puede sugerir una capacidad; el estudiante decide si la reconoce, la cuestiona o necesita más evidencia.</p></div>
     </div>
@@ -316,7 +343,7 @@ function dnaView(){
 }
 
 function introspectionView(){
-  const saved = window.sessionIntrospections || [];
+  const saved = window.sessionIntrospections || demoCareerReflections;
   return `
   <section class="view active">
     <div class="k">INTROSPECCIÓN</div><h1>Detenerse también es diseñar.</h1>
@@ -367,7 +394,7 @@ function curatorView(){
     <div class="grid g2">
       <div class="card">
         <div class="k">EVIDENCIA DE ENTRADA</div>
-        ${evidence[0] ? `<h2>${esc(evidence[0].project||evidence[0].file_name)}</h2><p class="m">${esc(evidence[0].reflection||'Sin reflexión')}</p><span class="pill">${esc(evidence[0].course||'')}</span>` : '<h2>Sin evidencia todavía</h2><p class="m">Sube una evidencia desde Archivo para comenzar.</p>'}
+        ${allEvidence()[0] ? `<h2>${esc(allEvidence()[0].project||allEvidence()[0].file_name)}</h2><p class="m">${esc(allEvidence()[0].reflection||'Sin reflexión')}</p><span class="pill">${esc(allEvidence()[0].course||'')}</span>` : '<h2>Sin evidencia todavía</h2><p class="m">Sube una evidencia desde Archivo para comenzar.</p>'}
         <button id="aiBtn" class="btn top-gap">Analizar evidencia más reciente</button>
       </div>
       <div class="curator">
@@ -382,7 +409,7 @@ function readingMarkup(data){
 }
 
 function profileView(){
-  const projectCount=evidence.length;
+  const projectCount=allEvidence().length;
   return `
   <section class="view active">
     <div class="k">PERFIL VIVO</div><h1>Una narrativa que cambia con la trayectoria.</h1>
@@ -401,8 +428,8 @@ function profileView(){
 }
 
 function profileProjects(){
-  if(!evidence.length) return `<div class="project-story"><div><div class="k">PROYECTO</div><h2>Exploración de proceso</h2></div><div><div class="story-block"><div class="story-label">Decisión</div><p>Convertir el proceso en material visible, no esconder las pruebas intermedias.</p></div><div class="story-block"><div class="story-label">Aprendizaje</div><p>Las iteraciones permiten explicar cómo se llegó a una decisión.</p></div></div></div>`;
-  return evidence.slice(0,4).map(e=>`<div class="project-story"><div><div class="k">SEMESTRE ${esc(e.semester||'—')}</div><h2>${esc(e.project||e.file_name)}</h2><span class="pill">${esc(e.course||'')}</span></div><div><div class="story-block"><div class="story-label">Reflexión</div><p>${esc(e.reflection||'Sin reflexión documentada.')}</p></div></div></div>`).join('');
+  if(!allEvidence().length) return `<div class="project-story"><div><div class="k">PROYECTO</div><h2>Exploración de proceso</h2></div><div><div class="story-block"><div class="story-label">Decisión</div><p>Convertir el proceso en material visible, no esconder las pruebas intermedias.</p></div><div class="story-block"><div class="story-label">Aprendizaje</div><p>Las iteraciones permiten explicar cómo se llegó a una decisión.</p></div></div></div>`;
+  return allEvidence().slice(0,6).map(e=>`<div class="project-story"><div><div class="k">SEMESTRE ${esc(e.semester||'—')}</div><h2>${esc(e.project||e.file_name)}</h2><span class="pill">${esc(e.course||'')}</span></div><div><div class="story-block"><div class="story-label">Reflexión</div><p>${esc(e.reflection||'Sin reflexión documentada.')}</p></div></div></div>`).join('');
 }
 
 function teacherStudentsView(){
@@ -507,7 +534,7 @@ function bindView(){
   if($('saveReflection')) $('saveReflection').onclick=()=>{
     const answer=$('introResponse').value.trim();
     if(!answer){$('introStatus').textContent='Escribe una reflexión antes de guardarla.';return;}
-    window.sessionIntrospections=window.sessionIntrospections||[];
+    window.sessionIntrospections=window.sessionIntrospections||[...demoCareerReflections];
     window.sessionIntrospections.unshift({
       question:$('introQuestion').textContent,
       answer,
@@ -548,10 +575,10 @@ async function uploadEvidence(){
 }
 
 async function analyzeLatest(){
-  if(!evidence[0]){$('aiOutput').innerHTML='<p>Primero sube una evidencia.</p>';return;}
+  if(!allEvidence()[0]){$('aiOutput').innerHTML='<p>Primero sube una evidencia.</p>';return;}
   $('aiOutput').innerHTML='<p>Analizando…</p>';
   const r=await fetch('/api/curate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    project:evidence[0].project,course:evidence[0].course,reflection:evidence[0].reflection
+    project:allEvidence()[0].project,course:allEvidence()[0].course,reflection:allEvidence()[0].reflection
   })});
   const data=await r.json();
   if(!r.ok){$('aiOutput').innerHTML=`<p>${esc(data.error||'No se pudo analizar.')}</p>`;return;}
