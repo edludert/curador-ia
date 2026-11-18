@@ -118,6 +118,7 @@ function shellMarkup(){
       <div class="who">
         <b>${esc(profile?.name || session?.user?.email || 'Usuario')}</b>
         <span>${esc(profile?.role || 'usuario')}</span>
+        ${pilotTeacherMode?'<span class="pilot-badge">MODO DEMO · no conectado a estudiantes reales</span>':''}
       </div>
       <nav id="nav">${navItems().map(([id,label])=>`<button data-view="${id}" class="${id===currentView?'active':''}">${label}</button>`).join('')}</nav>
       <button id="logoutBtn" class="logout">Cerrar sesión</button>
@@ -442,7 +443,9 @@ function profileProjects(){
 function teacherStudentsView(){
   const list=students.length?students:[{id:'demo-lucia',name:'Lucía Romo',role:'student'}];
   return `
-  <section class="view active"><div class="k">DOCENTE</div><h1>Estudiantes</h1><p class="lead">Las cuentas reales registradas como estudiantes aparecen aquí automáticamente, aunque todavía no hayan subido evidencia.</p>
+  <section class="view active"><div class="k">DOCENTE</div><h1>Estudiantes</h1>
+  ${pilotTeacherMode?'<div class="notice">Estás en modo profesor piloto. Esta vista usa datos simulados y no puede consultar estudiantes reales de Supabase. Para ver a Edgar necesitas entrar con una cuenta real cuyo rol en profiles sea teacher.</div>':''}
+  <p class="lead">Las cuentas reales registradas como estudiantes aparecen aquí automáticamente, aunque todavía no hayan subido evidencia.</p>
   <div class="teacher-grid"><div class="teacher-card">${list.map(s=>{
     const count=evidence.filter(e=>e.student_id===s.id || e.profiles?.name===s.name).length;
     return `<div class="student-row"><div><b>${esc(s.name||'Estudiante')}</b><div class="signal">${count} evidencias · ${count?'proceso activo':'aún sin evidencias'}</div></div><button class="btn ghost small" data-go="review">Revisar</button></div>`;
