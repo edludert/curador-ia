@@ -126,3 +126,6 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 
 .teacher-pilot-note,.pilot-access-hint{margin-top:10px;padding:10px 12px;border:1px solid #2b2b2b;border-radius:8px;font-size:11px;line-height:1.4;color:#aaa;background:#090909}
 .teacher-pilot-note b,.pilot-access-hint b{color:#fff}
+
+.welcome-user{font-size:10px;letter-spacing:.12em;color:#fff;margin-bottom:8px}
+.home-welcome{font-size:12px;letter-spacing:.14em;color:#fff;margin:6px 0 14px}
