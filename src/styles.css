@@ -118,3 +118,6 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
   color:#595959 !important;
   border-color:#222 !important;
 }
+
+.pilot-login{margin-left:8px}
+@media(max-width:560px){.pilot-login{margin-left:0;margin-top:8px;width:100%}}
