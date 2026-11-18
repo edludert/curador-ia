@@ -67,6 +67,26 @@ const demoCareerReflections = [
   {question:'¿Qué parte de tu proceso reconoces como especialmente tuya?',answer:'Necesito dibujar, hacer listas, mover referencias y probar físicamente antes de sentir que entiendo un problema.',theme:'AUTORÍA',date:'Oct 2026'}
 ];
 
+const demoStudents = [
+  {id:'demo-lucia',name:'Lucía Romo',role:'student'},
+  {id:'demo-diego',name:'Diego Salazar',role:'student'},
+  {id:'demo-sofia',name:'Sofía Contreras',role:'student'},
+  {id:'demo-regina',name:'Regina Betancourt',role:'student'}
+];
+
+const demoStudentEvidence = [
+  ...demoEvidence.map(e=>({...e,student_id:'demo-lucia',profiles:{name:'Lucía Romo'}})),
+  {id:'diego-01',student_id:'demo-diego',profiles:{name:'Diego Salazar'},semester:1,course:'AR1029 · Dibujo y expresión gráfica',project:'Observación y gesto',reflection:'Aprendí a usar el dibujo como registro rápido para decidir antes de modelar.',file_name:'diego-01.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[1]},
+  {id:'diego-02',student_id:'demo-diego',profiles:{name:'Diego Salazar'},semester:2,course:'A1003B · Experimentación digital',project:'Variación algorítmica',reflection:'Me interesa cuándo un sistema produce algo que yo no habría imaginado por mi cuenta.',file_name:'diego-02.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[2]},
+  {id:'diego-03',student_id:'demo-diego',profiles:{name:'Diego Salazar'},semester:3,course:'DL1001B · Estudio diseño I',project:'Objeto y uso',reflection:'Estoy empezando a justificar mejor cada decisión a partir del comportamiento del usuario.',file_name:'diego-03.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[3]},
+  {id:'sofia-01',student_id:'demo-sofia',profiles:{name:'Sofía Contreras'},semester:1,course:'DL1024 · Métodos creativos',project:'Conexiones improbables',reflection:'Me sirve combinar referencias lejanas para salir de respuestas demasiado obvias.',file_name:'sofia-01.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[0]},
+  {id:'sofia-02',student_id:'demo-sofia',profiles:{name:'Sofía Contreras'},semester:2,course:'AR1030 · Investigación para industrias creativas',project:'Escuchar antes de diseñar',reflection:'Entendí que entrevistar mejor cambia por completo la dirección del proyecto.',file_name:'sofia-02.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[1]},
+  {id:'regina-01',student_id:'demo-regina',profiles:{name:'Regina Betancourt'},semester:1,course:'AR1010B · Fundamentos de diseño',project:'Jerarquía y ritmo',reflection:'Estoy aprendiendo a detectar cuándo una composición se siente clara y por qué.',file_name:'regina-01.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[2]},
+  {id:'regina-02',student_id:'demo-regina',profiles:{name:'Regina Betancourt'},semester:2,course:'AR1031 · Análisis y visualización de datos',project:'Narrar con datos',reflection:'La forma de visualizar también cambia la historia que cuenta la información.',file_name:'regina-02.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[3]},
+  {id:'regina-03',student_id:'demo-regina',profiles:{name:'Regina Betancourt'},semester:3,course:'DL1026 · Materiales I',project:'Ensayos de material',reflection:'Estoy entendiendo que el material propone límites y oportunidades que debo escuchar.',file_name:'regina-03.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[0]}
+];
+
+
 const app = document.querySelector('#app');
 let session = null;
 let profile = null;
@@ -451,7 +471,7 @@ function profileProjects(){
 }
 
 function teacherStudentsView(){
-  const list=students.length?students:[{id:'demo-lucia',name:'Lucía Romo',role:'student'}];
+  const list=students.length?students:demoStudents;
   return `
   <section class="view active"><div class="k">DOCENTE</div><h1>Estudiantes</h1>
   ${pilotTeacherMode?'<div class="notice">Estás en modo profesor piloto. Esta vista usa datos simulados y no puede consultar estudiantes reales de Supabase. Para ver a Edgar necesitas entrar con una cuenta real cuyo rol en profiles sea teacher.</div>':''}
@@ -630,9 +650,9 @@ async function loadProfile(){
 
 async function loadData(){
   if(pilotTeacherMode){
-    evidence=demoEvidence.map(e=>({...e,profiles:{name:'Lucía Romo'},student_id:'demo-lucia'}));
+    evidence=[...demoStudentEvidence];
     feedback=[];
-    students=[{id:'demo-lucia',name:'Lucía Romo',role:'student'}];
+    students=[...demoStudents];
     return;
   }
   if(profile?.role==='teacher'||profile?.role==='admin'){
