@@ -39,6 +39,7 @@ let feedback = [];
 let currentView = 'home';
 let latestReading = null;
 let selectedCapability = 'Experimentación';
+let selectedCourse = null;
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -203,10 +204,66 @@ function coursesView(){
       <div class="semester-block">
         <div class="semester-number">0${sem}</div>
         <div class="course-list">
-          ${items.map(([code,name])=>`<button class="course-link" data-sem="${sem}"><strong>${esc(name)}</strong><small>${code}</small></button>`).join('')}
+          ${items.map(([code,name])=>`<button class="course-link" data-sem="${sem}" data-course="${esc(code)}" data-course-name="${esc(name)}"><strong>${esc(name)}</strong><small>${code}</small></button>`).join('')}
         </div>
       </div>`).join('')}
   </section>`;
+}
+
+function courseDetailView(){
+  if(!selectedCourse) return coursesView();
+  const matches=evidence.filter(e=>{
+    const course=String(e.course||'');
+    return course.startsWith(selectedCourse.code+' ·') || course===selectedCourse.code || course.includes(selectedCourse.name);
+  });
+  const reflections=matches.filter(e=>e.reflection && e.reflection.trim());
+  return `
+  <section class="view active">
+    <button class="back-link" id="backToCourses">← Volver a materias</button>
+    <div class="course-hero">
+      <div class="card">
+        <div class="k">MATERIA · SEMESTRE ${selectedCourse.semester}</div>
+        <div class="big-title">${esc(selectedCourse.name)}</div>
+        <p class="m">${esc(selectedCourse.code)}</p>
+        <div class="row">
+          <span class="pill">${matches.length} evidencias</span>
+          <span class="pill">${reflections.length} reflexiones de proceso</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="k">LECTURA DE LA MATERIA</div>
+        <h2>Proceso acumulado</h2>
+        <p class="m">Esta vista reúne únicamente lo documentado dentro de esta materia: proyectos, archivos, decisiones y reflexiones ligadas a evidencias.</p>
+      </div>
+    </div>
+
+    <div class="course-section-head"><div><div class="k">EVIDENCIAS</div><h2>Archivo de la materia</h2></div></div>
+    <div id="courseEvidenceGrid" class="media-grid">
+      ${matches.length ? '<div class="status">Cargando evidencias…</div>' : '<div class="empty-reflections"><p>Todavía no hay evidencias en esta materia.</p><span>Cuando subas procesos desde Archivo aparecerán aquí automáticamente.</span></div>'}
+    </div>
+
+    <div class="course-section-head top-gap"><div><div class="k">REFLEXIONES DE PROCESO</div><h2>Decisiones documentadas</h2></div></div>
+    <div class="intro-history">
+      ${reflections.length ? reflections.map(e=>`
+        <article class="intro-entry">
+          <div class="intro-entry-top"><span class="intro-tag">${esc(e.project||'PROCESO')}</span><small>Semestre ${esc(e.semester||selectedCourse.semester)}</small></div>
+          <b>${esc(e.project||e.file_name||'Evidencia')}</b>
+          <p>${esc(e.reflection)}</p>
+        </article>`).join('') : '<div class="empty-reflections"><p>Todavía no hay reflexiones ligadas a evidencias de esta materia.</p><span>Estas son distintas al repositorio general de Introspección.</span></div>'}
+    </div>
+  </section>`;
+}
+
+async function hydrateCourseEvidence(){
+  const grid=$('courseEvidenceGrid');
+  if(!grid || !selectedCourse) return;
+  const matches=evidence.filter(e=>{
+    const course=String(e.course||'');
+    return course.startsWith(selectedCourse.code+' ·') || course===selectedCourse.code || course.includes(selectedCourse.name);
+  });
+  if(!matches.length) return;
+  const cards=await Promise.all(matches.map(evidenceCard));
+  grid.innerHTML=cards.join('');
 }
 
 function capabilitiesView(){
@@ -381,6 +438,7 @@ async function renderView(){
     home:()=>homeView(),
     archive:()=>archiveView(),
     courses:()=>coursesView(),
+    courseDetail:()=>courseDetailView(),
     capabilities:()=>capabilitiesView(),
     dna:()=>dnaView(),
     introspection:()=>introspectionView(),
@@ -396,7 +454,7 @@ async function renderView(){
 
 function setView(id){
   currentView=id;
-  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id || (id==='courseDetail' && b.dataset.view==='courses')));
   renderView();
 }
 
@@ -413,6 +471,11 @@ function populateCourses(){
 
 function bindView(){
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setView(b.dataset.go));
+  document.querySelectorAll('.course-link[data-course]').forEach(btn=>btn.onclick=()=>{
+    selectedCourse={code:btn.dataset.course,name:btn.dataset.courseName,semester:btn.dataset.sem};
+    setView('courseDetail');
+  });
+  if($('backToCourses')) $('backToCourses').onclick=()=>{selectedCourse=null;setView('courses');};
   if($('openUpload')) $('openUpload').onclick=()=>{$('uploadPanel').classList.toggle('hidden');populateSemesters();};
   document.querySelectorAll('[data-filter]').forEach(btn=>btn.onclick=()=>{
     document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));
@@ -465,6 +528,7 @@ function bindView(){
       :`<div class="provenance-grid"><div class="prov"><b>Humano</b><span>Decisiones, criterio, autoría</span></div><div class="prov"><b>IA</b><span>Organización y lectura tentativa</span></div><div class="prov"><b>Docente</b><span>Señales externas</span></div><div class="prov"><b>Evidencia</b><span>Trazabilidad del proceso</span></div></div>`;
   });
   if($('feedbackBtn')) $('feedbackBtn').onclick=sendFeedback;
+  if(currentView==='courseDetail') hydrateCourseEvidence();
 }
 
 async function uploadEvidence(){
