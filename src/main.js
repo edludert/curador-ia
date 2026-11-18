@@ -99,7 +99,7 @@ $('loginBtn').onclick=async()=>{
   $('loginStatus').textContent=error?error.message:'Acceso correcto';
 };
 $('signupBtn').onclick=async()=>{
-  const {data,error}=await supabase.auth.signUp({email:$('signupEmail').value,password:$('signupPassword').value,options:{data:{name:$('signupName').value,role:$('signupRole').value}}});
+  const {data,error}=await supabase.auth.signUp({email:$('signupEmail').value,password:$('signupPassword').value,options:{emailRedirectTo:window.location.origin,data:{name:$('signupName').value,role:$('signupRole').value}}});
   $('signupStatus').textContent=error?error.message:'Cuenta creada. Revisa tu correo si la confirmación está activa.';
 };
 supabase.auth.onAuthStateChange(()=>refresh());
