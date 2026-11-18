@@ -82,6 +82,7 @@ function authMarkup(){
         <div class="field"><label>Email</label><input id="loginEmail" type="email"></div>
         <div class="field"><label>Contraseña</label><input id="loginPassword" type="password"></div>
         <button id="loginBtn" class="btn">Entrar</button>
+        <button id="pilotTeacherBtn" class="btn ghost pilot-login">Entrar como profesor piloto</button>
         <div id="loginStatus" class="status"></div>
       </section>
       <section class="card">
@@ -646,21 +647,25 @@ async function refresh(){
   if(!session){
     profile=null;evidence=[];feedback=[];currentView='home';
     app.innerHTML=authMarkup();
+    const enterPilotTeacher=async()=>{
+      pilotTeacherMode=true;
+      session={user:{id:'pilot-teacher',email:PILOT_TEACHER_EMAIL,user_metadata:{name:'Profesor Piloto',role:'teacher'}}};
+      profile={id:'pilot-teacher',name:'Profesor Piloto',role:'teacher'};
+      await loadData();
+      currentView='home';
+      await renderAuthenticated();
+    };
     $('loginBtn').onclick=async()=>{
-      const email=$('loginEmail').value.trim();
-      const password=$('loginPassword').value;
-      if(email===PILOT_TEACHER_EMAIL && password===PILOT_TEACHER_PASSWORD){
-        pilotTeacherMode=true;
-        session={user:{id:'pilot-teacher',email:PILOT_TEACHER_EMAIL,user_metadata:{name:'Profesor Piloto',role:'teacher'}}};
-        profile={id:'pilot-teacher',name:'Profesor Piloto',role:'teacher'};
-        await loadData();
-        currentView='home';
-        await renderAuthenticated();
+      const email=$('loginEmail').value.trim().toLowerCase();
+      const password=$('loginPassword').value.trim();
+      if(email===PILOT_TEACHER_EMAIL.toLowerCase() && password===PILOT_TEACHER_PASSWORD){
+        await enterPilotTeacher();
         return;
       }
       const {error}=await supabase.auth.signInWithPassword({email,password});
       $('loginStatus').textContent=error?error.message:'Acceso correcto';
     };
+    if($('pilotTeacherBtn')) $('pilotTeacherBtn').onclick=enterPilotTeacher;
     $('signupBtn').onclick=async()=>{
       const {error}=await supabase.auth.signUp({email:$('signupEmail').value,password:$('signupPassword').value,options:{emailRedirectTo:window.location.origin,data:{name:$('signupName').value,role:$('signupRole').value}}});
       $('signupStatus').textContent=error?error.message:'Cuenta creada. Revisa tu correo para confirmar.';
