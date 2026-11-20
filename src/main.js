@@ -188,7 +188,7 @@ function homeView(){
   return `
   <section class="view active clean-home">
     <div class="eyebrow">${profile?.role==='teacher'?'VISTA DOCENTE':'PERFIL EN CONSTRUCCIÓN'}</div>
-    ${profile?.role==='student'?'<div class="home-welcome">Bienvenido(a), '+esc(profile?.name || session?.user?.email || 'Estudiante')+'</div>':''}
+    ${profile?.role==='student'?'<div class="home-welcome">Bienvenido(a), '+esc(toTitleCaseName(profile?.name || '') || session?.user?.email || 'Estudiante')+'</div>':''}
     <h1>Haz visible cómo piensas, decides y creas.</h1>
     <p class="intro">CURADOR.IA acompaña la trayectoria y convierte evidencias, decisiones, reflexiones y feedback en un archivo vivo de proceso humano y ADN creativo.</p>
     <div class="home-actions">
