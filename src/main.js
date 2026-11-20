@@ -736,7 +736,7 @@ async function uploadProcess(){
   ].filter(Boolean).join('\n\n');
   $('uploadStatus').textContent='Guardando proceso…';
   for(const file of files){
-    const path=`${session.user.id}/${crypto.randomUUID()}-${file.name}`;
+    const path=`${session.user.id}/${crypto.randomUUID()}-${safeFileName(file.name)}`;
     const up=await supabase.storage.from('evidence').upload(path,file);
     if(up.error){$('uploadStatus').textContent=up.error.message;return;}
     const row=await supabase.from('evidence').insert({
@@ -756,11 +756,23 @@ async function uploadProcess(){
   setView('archive');
 }
 
+function safeFileName(name){
+  const parts=String(name||'archivo').split('.');
+  const ext=parts.length>1 ? '.'+parts.pop().toLowerCase().replace(/[^a-z0-9]/g,'') : '';
+  const base=parts.join('.')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9_-]+/g,'-')
+    .replace(/-+/g,'-')
+    .replace(/^-|-$/g,'')
+    .slice(0,120) || 'archivo';
+  return base+ext;
+}
+
 async function uploadEvidence(){
   const f=$('file')?.files[0];
   if(!f){$('uploadStatus').textContent='Selecciona un archivo.';return;}
   $('uploadStatus').textContent='Subiendo…';
-  const path=`${session.user.id}/${crypto.randomUUID()}-${f.name}`;
+  const path=`${session.user.id}/${crypto.randomUUID()}-${safeFileName(f.name)}`;
   const up=await supabase.storage.from('evidence').upload(path,f);
   if(up.error){$('uploadStatus').textContent=up.error.message;return;}
   const row=await supabase.from('evidence').insert({
