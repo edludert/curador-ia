@@ -171,7 +171,7 @@ function shellMarkup(){
       <div class="logo">CURADOR.IA</div>
       <div class="sub">Archivo vivo de proceso humano y ADN creativo.</div>
       <div class="who">
-        <div class="welcome-user">Bienvenido(a), ${esc(profile?.name || session?.user?.email || 'Usuario')}</div>
+        <div class="welcome-user">Bienvenido(a), ${esc(toTitleCaseName(profile?.name || '') || session?.user?.email || 'Usuario')}</div>
         <span>${esc(profile?.role || 'usuario')}</span>
         ${pilotTeacherMode?'<span class="pilot-badge">MODO DEMO · no conectado a estudiantes reales</span>':''}
       </div>
