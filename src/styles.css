@@ -155,3 +155,9 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 }
 .evidence-delete:hover{background:#fff;color:#000;border-color:#fff}
 .evidence-delete:disabled{opacity:.4;cursor:wait}
+
+.real-video{width:100%;display:block;max-height:520px;background:#000}
+.audio-card{padding:28px 22px;background:#080808;display:grid;gap:16px}
+.audio-card audio{width:100%}
+.file-link{display:flex;align-items:center;justify-content:center;min-height:240px;text-decoration:none;color:#fff}
+.file-link:hover{background:#111}
