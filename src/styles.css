@@ -161,3 +161,10 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 .audio-card audio{width:100%}
 .file-link{display:flex;align-items:center;justify-content:center;min-height:240px;text-decoration:none;color:#fff}
 .file-link:hover{background:#111}
+
+.archive-filters{display:flex;flex-wrap:wrap;gap:4px}
+.archive-filters button{white-space:nowrap}
+@media(max-width:760px){
+  .archive-toolbar{align-items:flex-start}
+  .archive-filters{width:100%}
+}
