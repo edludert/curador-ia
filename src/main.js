@@ -682,7 +682,7 @@ function bindView(){
     setView('courseDetail');
   });
   if($('backToCourses')) $('backToCourses').onclick=()=>{selectedCourse=null;setView('courses');};
-  if($('openUpload')) $('openUpload').onclick=()=>{$('uploadPanel').classList.toggle('hidden');populateSemesters();};
+  if($('openUpload')) $('openUpload').onclick=()=>setView('upload');
   if(currentView==='archive' && openUploadOnArchive){populateSemesters();openUploadOnArchive=false;}
   document.querySelectorAll('[data-filter]').forEach(btn=>btn.onclick=()=>{
     document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));
