@@ -370,19 +370,7 @@ async function archiveView(){
   <button data-filter="reflection">REFLEXIONES</button>
 </div>
     </div>
-    <div id="uploadPanel" class="card upload-panel ${openUploadOnArchive?'':'hidden'}">
-      <div class="k">NUEVA EVIDENCIA</div><h2>Subir proceso</h2>
-      <div class="g2 grid">
-        <div class="field"><label>Semestre</label><select id="semester"></select></div>
-        <div class="field"><label>Materia</label><select id="course"></select></div>
-      </div>
-      <div class="field"><label>Proyecto</label><input id="project" placeholder="Nombre del proyecto"></div>
-      <div class="field"><label>¿Qué decisión estás documentando?</label><textarea id="reflection" placeholder="Qué cambió, qué descubriste, qué descartaste..."></textarea></div>
-      <div class="field"><label>Archivo</label><input id="file" type="file" accept="image/*,video/*,audio/*,.pdf"></div>
-      <button id="uploadBtn" class="btn">Guardar evidencia</button>
-      <div id="uploadStatus" class="status"></div>
-    </div>
-    <div class="media-grid" id="mediaGrid">
+        <div class="media-grid" id="mediaGrid">
       ${dynamicCards.join('')}
       ${reflectionCards()}
       
