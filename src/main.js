@@ -215,14 +215,30 @@ function demoArchiveCards(){
 
 async function evidenceCard(e){
   let src = e.demo_image || '';
-  if(!src && e.mime_type?.startsWith('image/') && e.file_path){
+  const isImage=e.mime_type?.startsWith('image/');
+  const isVideo=e.mime_type?.startsWith('video/');
+  const isAudio=e.mime_type?.startsWith('audio/');
+  const isPdf=e.mime_type?.includes('pdf');
+  if(!src && (isImage||isVideo||isAudio||isPdf) && e.file_path){
     const {data} = await supabase.storage.from('evidence').createSignedUrl(e.file_path, 3600);
     src = data?.signedUrl || '';
   }
+  let media='';
+  if(isImage && src){
+    media=`<img class="real-image" src="${src}" alt="${esc(e.file_name)}">`;
+  }else if(isVideo && src){
+    media=`<video class="real-video" controls preload="metadata"><source src="${src}" type="${esc(e.mime_type||'video/mp4')}">Tu navegador no puede reproducir este video.</video>`;
+  }else if(isAudio && src){
+    media=`<div class="audio-card"><div class="file-placeholder">AUDIO</div><audio controls preload="metadata"><source src="${src}" type="${esc(e.mime_type||'audio/mpeg')}">Tu navegador no puede reproducir este audio.</audio></div>`;
+  }else if(isPdf && src){
+    media=`<a class="file-placeholder file-link" href="${src}" target="_blank" rel="noopener">PDF · Abrir documento</a>`;
+  }else{
+    media=`<div class="file-placeholder">ARCHIVO</div>`;
+  }
   return `
-  <article class="media-card span6 evidence-card" data-kind="${src?'image':'file'}" data-evidence-id="${esc(e.id)}">
+  <article class="media-card span6 evidence-card" data-kind="${isImage?'image':isVideo?'video':isAudio?'audio':isPdf?'pdf':'file'}" data-evidence-id="${esc(e.id)}">
     ${(!String(e.id||'').startsWith('demo-') && profile?.role==='student') ? `<button class="evidence-delete" data-delete-evidence="${esc(e.id)}" data-file-path="${esc(e.file_path||'')}" aria-label="Eliminar evidencia" title="Eliminar evidencia">×</button>` : ''}
-    ${src ? `<img class="real-image" src="${src}" alt="${esc(e.file_name)}">` : `<div class="file-placeholder">${esc(e.mime_type?.includes('pdf')?'PDF':'ARCHIVO')}</div>`}
+    ${media}
     <div class="meta">
       <span class="type">Semestre ${esc(e.semester||'—')} · ${esc(e.course||'Sin materia')}</span>
       <b>${esc(e.project||e.file_name||'Evidencia')}</b>
@@ -298,11 +314,11 @@ function uploadView(){
           <div class="type"><b>Reflexiones</b><small class="m">qué cambió y por qué</small></div>
         </div>
         <div class="drop" id="drop">
-          <input id="files" type="file" multiple accept="image/*,.pdf,.txt,.md,.doc,.docx">
+          <input id="files" type="file" multiple accept="image/*,video/*,audio/*,.pdf">
           <b>Arrastra aquí tu proceso</b>
           <p class="m">o</p>
           <button id="pick" type="button" class="btn ghost small">Seleccionar archivos</button>
-          <p class="m mini">Imágenes · PDF · texto · documentos</p>
+          <p class="m mini">Imágenes · PDF · audio · video</p>
         </div>
         <div id="fileList" class="files"></div>
       </div>
@@ -355,7 +371,7 @@ async function archiveView(){
       </div>
       <div class="field"><label>Proyecto</label><input id="project" placeholder="Nombre del proyecto"></div>
       <div class="field"><label>¿Qué decisión estás documentando?</label><textarea id="reflection" placeholder="Qué cambió, qué descubriste, qué descartaste..."></textarea></div>
-      <div class="field"><label>Archivo</label><input id="file" type="file" accept="image/*,.pdf"></div>
+      <div class="field"><label>Archivo</label><input id="file" type="file" accept="image/*,video/*,audio/*,.pdf"></div>
       <button id="uploadBtn" class="btn">Guardar evidencia</button>
       <div id="uploadStatus" class="status"></div>
     </div>
