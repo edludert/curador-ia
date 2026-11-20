@@ -220,7 +220,8 @@ async function evidenceCard(e){
     src = data?.signedUrl || '';
   }
   return `
-  <article class="media-card span6" data-kind="${src?'image':'file'}">
+  <article class="media-card span6 evidence-card" data-kind="${src?'image':'file'}" data-evidence-id="${esc(e.id)}">
+    ${(!String(e.id||'').startsWith('demo-') && profile?.role==='student') ? `<button class="evidence-delete" data-delete-evidence="${esc(e.id)}" data-file-path="${esc(e.file_path||'')}" aria-label="Eliminar evidencia" title="Eliminar evidencia">×</button>` : ''}
     ${src ? `<img class="real-image" src="${src}" alt="${esc(e.file_name)}">` : `<div class="file-placeholder">${esc(e.mime_type?.includes('pdf')?'PDF':'ARCHIVO')}</div>`}
     <div class="meta">
       <span class="type">Semestre ${esc(e.semester||'—')} · ${esc(e.course||'Sin materia')}</span>
@@ -652,6 +653,18 @@ function populateCourses(){
 
 function bindView(){
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setView(b.dataset.go));
+  document.querySelectorAll('[data-delete-evidence]').forEach(b=>b.onclick=async(e)=>{
+    e.stopPropagation();
+    const id=b.dataset.deleteEvidence;
+    const path=b.dataset.filePath;
+    if(!confirm('¿Eliminar esta evidencia? Esta acción no se puede deshacer.')) return;
+    b.disabled=true;
+    const {error:dbError}=await supabase.from('evidence').delete().eq('id',id).eq('student_id',session.user.id);
+    if(dbError){alert(dbError.message);b.disabled=false;return;}
+    if(path) await supabase.storage.from('evidence').remove([path]);
+    await loadData();
+    await renderView();
+  });
   if($('homeAddEvidence')) $('homeAddEvidence').onclick=()=>setView('upload');
   document.querySelectorAll('.course-link[data-course]').forEach(btn=>btn.onclick=()=>{
     selectedCourse={code:btn.dataset.course,name:btn.dataset.courseName,semester:btn.dataset.sem};
@@ -771,6 +784,13 @@ async function uploadProcess(){
   $('uploadStatus').textContent=`Proyecto guardado con ${files.length} evidencia${files.length===1?'':'s'}.`;
   await loadData();
   setView('archive');
+}
+
+function toTitleCaseName(value){
+  return String(value||'')
+    .trim()
+    .toLowerCase()
+    .replace(/(^|[\s'-])([a-záéíóúüñ])/g,(m,sep,ch)=>sep+ch.toUpperCase());
 }
 
 function safeStoragePath(userId,file){
@@ -935,8 +955,8 @@ async function refresh(){
       const email=$('signupEmail').value.trim().toLowerCase();
       const isTeacher=TEACHER_PILOT_EMAILS.includes(email);
       const password=isTeacher?TEACHER_PILOT_PASSWORD:$('signupPassword').value;
-      const firstName=$('signupFirstName')?.value.trim()||'';
-      const lastName=$('signupLastName')?.value.trim()||'';
+      const firstName=toTitleCaseName($('signupFirstName')?.value||'');
+      const lastName=toTitleCaseName($('signupLastName')?.value||'');
       const matricula=$('signupMatricula')?.value.trim().toUpperCase()||'';
       const semester=$('signupSemester')?.value||'';
       if(!firstName || !lastName){$('signupStatus').textContent='Escribe nombre y apellido.';return;}
