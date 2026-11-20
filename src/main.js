@@ -361,7 +361,14 @@ async function archiveView(){
     <p class="lead">Aquí conviven bocetos, pruebas, mapas, textos, errores, decisiones, imágenes, videos y reflexiones. No es una galería de “finales”; es trazabilidad.</p>
     <div class="archive-toolbar">
       <button class="btn" id="openUpload">+ Nueva evidencia</button>
-      <div class="toggle"><button class="active" data-filter="all">ALL</button><button data-filter="image">IMÁGENES</button><button data-filter="reflection">REFLEXIONES</button></div>
+      <div class="toggle archive-filters">
+  <button class="active" data-filter="all">ALL</button>
+  <button data-filter="image">IMÁGENES</button>
+  <button data-filter="pdf">PDF</button>
+  <button data-filter="audio">AUDIO</button>
+  <button data-filter="video">VIDEO</button>
+  <button data-filter="reflection">REFLEXIONES</button>
+</div>
     </div>
     <div id="uploadPanel" class="card upload-panel ${openUploadOnArchive?'':'hidden'}">
       <div class="k">NUEVA EVIDENCIA</div><h2>Subir proceso</h2>
