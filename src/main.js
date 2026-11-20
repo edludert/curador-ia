@@ -225,13 +225,30 @@ async function evidenceCard(e){
     <div class="meta">
       <span class="type">Semestre ${esc(e.semester||'—')} · ${esc(e.course||'Sin materia')}</span>
       <b>${esc(e.project||e.file_name||'Evidencia')}</b>
-      <p class="m">${esc(e.reflection||'')}</p>
     </div>
   </article>`;
 }
 
+function uniqueProjectReflections(rows=allEvidence()){
+  const seen=new Set();
+  return rows.filter(e=>{
+    const reflection=String(e.reflection||'').trim();
+    if(!reflection) return false;
+    const key=[
+      e.student_id||profile?.id||'student',
+      e.semester||'',
+      e.course||'',
+      e.project||'',
+      reflection
+    ].join('||');
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function reflectionCards(){
-  const rows=allEvidence().filter(e=>e.reflection && e.reflection.trim());
+  const rows=uniqueProjectReflections();
   if(!rows.length){
     return `
       <article class="media-card quote span6" data-kind="reflection">
@@ -374,7 +391,7 @@ function courseDetailView(){
     const course=String(e.course||'');
     return course.startsWith(selectedCourse.code+' ·') || course===selectedCourse.code || course.includes(selectedCourse.name);
   });
-  const reflections=matches.filter(e=>e.reflection && e.reflection.trim());
+  const reflections=uniqueProjectReflections(matches);
   return `
   <section class="view active">
     <button class="back-link" id="backToCourses">← Volver a materias</button>
