@@ -264,24 +264,29 @@ function uniqueProjectReflections(rows=allEvidence()){
   });
 }
 
+function careerReflections(){
+  if(window.sessionIntrospections) return window.sessionIntrospections;
+  return luciaDemoMode ? demoCareerReflections : [];
+}
+
 function reflectionCards(){
-  const rows=uniqueProjectReflections();
+  const rows=careerReflections();
   if(!rows.length){
     return `
       <article class="media-card quote span6" data-kind="reflection">
         <div class="quote-inner">
-          <span class="type">REFLEXIÓN</span>
-          <p>“¿Qué decisión de este proceso sientes que fue verdaderamente tuya?”</p>
-          <small>Ejemplo de reflexión · CURADOR.IA</small>
+          <span class="type">INTROSPECCIÓN</span>
+          <p>“Todavía no hay reflexiones de trayectoria guardadas.”</p>
+          <small>Guarda una reflexión desde Introspección para verla aquí.</small>
         </div>
       </article>`;
   }
-  return rows.map(e=>`
+  return rows.map(r=>`
     <article class="media-card quote span6" data-kind="reflection">
       <div class="quote-inner">
-        <span class="type">REFLEXIÓN · SEMESTRE ${esc(e.semester||'—')}</span>
-        <p>“${esc(e.reflection)}”</p>
-        <small>${esc(e.project||e.file_name||'Evidencia')} · ${esc(e.course||'')}</small>
+        <span class="type">${esc(r.theme||'INTROSPECCIÓN')}${r.date?' · '+esc(r.date):''}</span>
+        <p>“${esc(r.answer||'')}”</p>
+        <small>${esc(r.question||'Reflexión de trayectoria')}</small>
       </div>
     </article>`).join('');
 }
@@ -503,7 +508,7 @@ function dnaView(){
 }
 
 function introspectionView(){
-  const saved = luciaDemoMode ? (window.sessionIntrospections || demoCareerReflections) : (window.sessionIntrospections || demoCareerReflections);
+  const saved = careerReflections();
   return `
   <section class="view active">
     <div class="k">INTROSPECCIÓN</div><h1>Detenerse también es diseñar.</h1>
@@ -718,7 +723,7 @@ function bindView(){
   if($('saveReflection')) $('saveReflection').onclick=()=>{
     const answer=$('introResponse').value.trim();
     if(!answer){$('introStatus').textContent='Escribe una reflexión antes de guardarla.';return;}
-    window.sessionIntrospections=window.sessionIntrospections||[...demoCareerReflections];
+    window.sessionIntrospections=window.sessionIntrospections||[...(luciaDemoMode?demoCareerReflections:[])];
     window.sessionIntrospections.unshift({
       question:$('introQuestion').textContent,
       answer,
