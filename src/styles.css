@@ -144,3 +144,14 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 .types .type b{display:block;margin-bottom:3px}
 .types .type small{font-size:10px}
 @media(max-width:760px){.types{grid-template-columns:1fr 1fr}}
+
+.evidence-card{position:relative}
+.evidence-delete{
+  position:absolute;top:10px;right:10px;z-index:3;
+  width:32px;height:32px;border-radius:999px;
+  border:1px solid #3a3a3a;background:rgba(0,0,0,.82);color:#fff;
+  font-size:22px;line-height:1;display:grid;place-items:center;
+  cursor:pointer;backdrop-filter:blur(6px)
+}
+.evidence-delete:hover{background:#fff;color:#000;border-color:#fff}
+.evidence-delete:disabled{opacity:.4;cursor:wait}
