@@ -200,6 +200,9 @@ function shellMarkup(){
       </div>
       <nav id="nav">${navItems().map(([id,label])=>`<button data-view="${id}" class="${id===currentView?'active':''}">${label}</button>`).join('')}</nav>
       <button id="logoutBtn" class="logout">Cerrar sesión</button>
+      <div class="drawer-brand">
+        <img src="/logo-eaad.png?v=4" alt="Tecnológico de Monterrey · Escuela de Arquitectura, Arte y Diseño">
+      </div>
     </aside>
     <main id="mainView"></main>
   </div>`;
@@ -241,7 +244,6 @@ function homeView(){
     <h1>Haz visible cómo piensas, decides y creas.</h1>
     <p class="intro">CURADOR.IA acompaña la trayectoria y convierte evidencias, decisiones, reflexiones y feedback en un archivo vivo de proceso humano y ADN creativo.</p>
       </div>
-      <div class="home-corner-logo"><img src="/logo-eaad.png?v=3" alt="Tecnológico de Monterrey · Escuela de Arquitectura, Arte y Diseño"></div>
     </div>
     <div class="home-actions">
       ${profile?.role==='teacher'?'':'<button class="btn" id="homeAddEvidence">Documentar proceso</button>'}
