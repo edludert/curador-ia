@@ -418,3 +418,20 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
   color:#666 !important;
   border-color:#1b1b1b !important;
 }
+
+.process-map-card{display:flex;flex-direction:column;justify-content:center}
+.process-steps{display:grid;gap:10px;margin-top:12px}
+.process-steps>div{border-top:1px solid #252525;padding-top:10px}
+.process-steps b{display:block;font-size:13px;margin-bottom:3px}
+.process-steps span{font-size:11px;color:#777}
+.process-stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.process-stage{position:relative;border:1px solid #292929;border-radius:14px;background:#080808;padding:18px;min-width:0}
+.process-stage h2{font-size:22px;margin-top:6px}
+.process-stage .m{min-height:86px}
+.stage-number{position:absolute;top:14px;right:16px;font-size:32px;font-weight:800;color:#1f1f1f;letter-spacing:-.05em}
+.stage-drop{min-height:154px;margin-top:14px}
+.stage-drop .btn{width:100%}
+@media(max-width:980px){
+  .process-stage-grid{grid-template-columns:1fr}
+  .process-stage .m{min-height:auto}
+}
