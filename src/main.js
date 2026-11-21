@@ -225,6 +225,7 @@ function homeView(){
     : 'Tu perfil todavía está comenzando. A medida que documentes procesos, CURADOR.IA podrá detectar recurrencias, decisiones, formas de hacer y capacidades emergentes.';
   return `
   <section class="view active clean-home">
+    <div class="home-corner-logo"><img src="/logo-eaad.png" alt="Tecnológico de Monterrey · Escuela de Arquitectura, Arte y Diseño"></div>
     <div class="eyebrow">${profile?.role==='teacher'?'VISTA DOCENTE':'PERFIL EN CONSTRUCCIÓN'}</div>
     ${profile?.role==='student'?'<div class="home-welcome">Bienvenido(a), '+esc(toTitleCaseName(profile?.name || '') || session?.user?.email || 'Estudiante')+'</div>':''}
     <h1>Haz visible cómo piensas, decides y creas.</h1>
@@ -269,8 +270,6 @@ function homeView(){
         </div>
       </div>
     </div>` : ''}
-
-    <div class="statement">El portafolio deja de ser un cierre: se convierte en una lectura continua de cómo una persona aprende, decide, crea y evoluciona.</div>
   </section>`;
 }
 
