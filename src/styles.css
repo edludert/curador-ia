@@ -378,3 +378,43 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
     max-width:185px!important;
   }
 }
+
+/* Real student timeline: black until evidence exists */
+.course-link[data-state="empty"]{
+  background:#050505 !important;
+  color:#666 !important;
+  border-color:#1b1b1b !important;
+}
+.course-link[data-state="empty"] strong,
+.course-link[data-state="empty"] small{
+  color:#666 !important;
+}
+.course-link[data-state="empty"]:hover{
+  background:#0a0a0a !important;
+  color:#888 !important;
+  border-color:#2a2a2a !important;
+}
+.course-link[data-state="documented"]{
+  background:#fff !important;
+  color:#000 !important;
+  border-color:#fff !important;
+}
+.course-link[data-state="documented"] strong,
+.course-link[data-state="documented"] small{
+  color:#000 !important;
+}
+.course-link[data-state="documented"]:hover{
+  background:#ededed !important;
+  border-color:#ededed !important;
+}
+.course-link[data-state="documented"] small:after{
+  content:" · DOCUMENTADA";
+  font-size:9px;
+  color:#555;
+}
+/* override legacy first-semester highlight for real student states */
+.course-link[data-sem="1"][data-state="empty"]{
+  background:#050505 !important;
+  color:#666 !important;
+  border-color:#1b1b1b !important;
+}
