@@ -180,10 +180,19 @@ function navItems(){
 
 function shellMarkup(){
   return `
-  <div class="app">
-    <aside>
-      <div class="logo">CURADOR.IA</div>
-      <div class="sub">Archivo vivo de proceso humano y ADN creativo.</div>
+  <div class="app menu-collapsed" id="appShell">
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <aside id="sideMenu" aria-hidden="true">
+      <div class="aside-head">
+        <div>
+          <div class="logo">CURADOR.IA</div>
+          <div class="sub">Archivo vivo de proceso humano y ADN creativo.</div>
+        </div>
+        <button class="menu-close" id="menuClose" aria-label="Cerrar menú">×</button>
+      </div>
       <div class="who">
         <div class="welcome-user">Bienvenido(a), ${esc(toTitleCaseName(profile?.name || '') || session?.user?.email || 'Usuario')}</div>
         <span>${esc(profile?.role || 'usuario')}</span>
@@ -988,8 +997,23 @@ async function loadData(){
 
 async function renderAuthenticated(){
   app.innerHTML=shellMarkup();
+  const openMenu=()=>{
+    $('appShell')?.classList.remove('menu-collapsed');
+    $('appShell')?.classList.add('menu-open');
+    $('sideMenu')?.setAttribute('aria-hidden','false');
+    $('menuToggle')?.setAttribute('aria-expanded','true');
+  };
+  const closeMenu=()=>{
+    $('appShell')?.classList.remove('menu-open');
+    $('appShell')?.classList.add('menu-collapsed');
+    $('sideMenu')?.setAttribute('aria-hidden','true');
+    $('menuToggle')?.setAttribute('aria-expanded','false');
+  };
+  if($('menuToggle')) $('menuToggle').onclick=openMenu;
+  if($('menuClose')) $('menuClose').onclick=closeMenu;
+  if($('menuOverlay')) $('menuOverlay').onclick=closeMenu;
   $('logoutBtn').onclick=()=>{if(luciaDemoMode){luciaDemoMode=false;session=null;profile=null;refresh();}else if(pilotTeacherMode){pilotTeacherMode=false;session=null;profile=null;refresh();}else{supabase.auth.signOut();}};
-  document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+  document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{setView(b.dataset.view);closeMenu();});
   await renderView();
 }
 
