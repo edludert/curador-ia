@@ -170,7 +170,7 @@ function authMarkup(){
 function navItems(){
   const student = [
     ['home','Inicio'],['upload','Documentar proceso'],['archive','Bóveda'],['courses','Línea del tiempo'],['capabilities','Capacidades'],
-    ['dna','ADN'],['introspection','Introspección'],['profile','Perfil vivo']
+    ['dna','ADN'],['introspection','Introspección']
   ];
   const teacher = [
     ['home','Inicio'],['students','Estudiantes'],['review','Revisar proceso'],['dna','Lectura ADN'],['feedback','Feedback']
@@ -254,7 +254,7 @@ function homeView(){
     ${profile?.role==='student' ? `
     <div class="profile-infographic">
       <div class="profile-infographic-head">
-        <div><div class="k">RESUMEN DE PERFIL</div><h2>Lo que empieza a hacerse visible.</h2></div>
+        <div><div class="k">PERFIL VIVO</div><h2>Lo que empieza a hacerse visible.</h2></div>
         <span class="pill">lectura provisional</span>
       </div>
 
