@@ -170,7 +170,7 @@ function authMarkup(){
 function navItems(){
   const student = [
     ['home','Inicio'],['upload','Documentar proceso'],['archive','Bóveda'],['courses','Línea del tiempo'],['capabilities','Capacidades'],
-    ['dna','ADN'],['introspection','Introspección + CURADOR.IA'],['profile','Perfil vivo']
+    ['dna','ADN'],['introspection','Introspección'],['profile','Perfil vivo']
   ];
   const teacher = [
     ['home','Inicio'],['students','Estudiantes'],['review','Revisar proceso'],['dna','Lectura ADN'],['feedback','Feedback']
@@ -197,8 +197,32 @@ function shellMarkup(){
 }
 
 function homeView(){
-  const total = allEvidence().length;
-  const sems = [...new Set(allEvidence().map(e=>e.semester).filter(Boolean))].length;
+  const rows=allEvidence();
+  const total=rows.length;
+  const imageCount=rows.filter(e=>e.mime_type?.startsWith('image/')).length;
+  const videoCount=rows.filter(e=>e.mime_type?.startsWith('video/')).length;
+  const audioCount=rows.filter(e=>e.mime_type?.startsWith('audio/')).length;
+  const pdfCount=rows.filter(e=>e.mime_type?.includes('pdf')).length;
+  const projectCount=new Set(rows.map(e=>e.project).filter(Boolean)).size;
+  const reflectionCount=careerReflections().length;
+  const profileSignals = total
+    ? [
+        ['Exploración','alta'],
+        ['Experimentación', total>=4?'alta':'emergente'],
+        ['Pensamiento visual', imageCount>=2?'alta':'emergente'],
+        ['Reflexión', reflectionCount>=2?'alta':'en construcción'],
+        ['Trazabilidad', total>=3?'visible':'inicial']
+      ]
+    : [
+        ['Exploración','inicial'],
+        ['Experimentación','inicial'],
+        ['Pensamiento visual','inicial'],
+        ['Reflexión','inicial'],
+        ['Trazabilidad','inicial']
+      ];
+  const profileSummary = total
+    ? 'Tu perfil empieza a mostrar una práctica que aprende haciendo, compara alternativas y vuelve sobre sus propias decisiones. Esta lectura es provisional y crecerá con cada proceso documentado.'
+    : 'Tu perfil todavía está comenzando. A medida que documentes procesos, CURADOR.IA podrá detectar recurrencias, decisiones, formas de hacer y capacidades emergentes.';
   return `
   <section class="view active clean-home">
     <div class="eyebrow">${profile?.role==='teacher'?'VISTA DOCENTE':'PERFIL EN CONSTRUCCIÓN'}</div>
@@ -208,13 +232,44 @@ function homeView(){
     <div class="home-actions">
       ${profile?.role==='teacher'?'':'<button class="btn" id="homeAddEvidence">Documentar proceso</button>'}
       <button class="btn ghost" data-go="${profile?.role==='teacher'?'review':'archive'}">${profile?.role==='teacher'?'Revisar procesos':'Abrir bóveda'}</button>
-      <button class="btn ghost" data-go="${profile?.role==='teacher'?'feedback':'introspection'}">${profile?.role==='teacher'?'Dar feedback':'Introspección + CURADOR.IA'}</button>
+      <button class="btn ghost" data-go="${profile?.role==='teacher'?'feedback':'introspection'}">${profile?.role==='teacher'?'Dar feedback':'Introspección'}</button>
     </div>
-    <div class="home-index">
-      <div><span class="k">EVIDENCIAS</span><b>${total}</b></div>
-      <div><span class="k">SEMESTRES</span><b>${sems}</b></div>
-      <div><span class="k">LECTURA</span><b>${latestReading?'Activa':'En proceso'}</b></div>
-    </div>
+
+    ${profile?.role==='student' ? `
+    <div class="profile-infographic">
+      <div class="profile-infographic-head">
+        <div><div class="k">RESUMEN DE PERFIL</div><h2>Lo que empieza a hacerse visible.</h2></div>
+        <span class="pill">lectura provisional</span>
+      </div>
+
+      <div class="profile-metrics">
+        <div class="profile-metric"><b>${total}</b><span>Evidencias</span></div>
+        <div class="profile-metric"><b>${projectCount}</b><span>Proyectos</span></div>
+        <div class="profile-metric"><b>${reflectionCount}</b><span>Reflexiones</span></div>
+        <div class="profile-metric"><b>${imageCount+videoCount+audioCount+pdfCount}</b><span>Archivos</span></div>
+      </div>
+
+      <div class="profile-infographic-grid">
+        <div class="profile-summary-card">
+          <div class="k">PERFIL EMERGENTE</div>
+          <p>${profileSummary}</p>
+          <div class="profile-media-row">
+            <span>Imagen ${imageCount}</span>
+            <span>PDF ${pdfCount}</span>
+            <span>Audio ${audioCount}</span>
+            <span>Video ${videoCount}</span>
+          </div>
+        </div>
+        <div class="profile-signal-card">
+          <div class="k">SEÑALES ACTUALES</div>
+          ${profileSignals.map(([label,state])=>`
+            <div class="profile-signal-row">
+              <span>${label}</span><b>${state}</b>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>` : ''}
+
     <div class="statement">El portafolio deja de ser un cierre: se convierte en una lectura continua de cómo una persona aprende, decide, crea y evoluciona.</div>
   </section>`;
 }
