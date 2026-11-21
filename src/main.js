@@ -476,8 +476,11 @@ function coursesView(){
         <div class="semester-number">0${sem}</div>
         <div class="course-list">
           ${items.map(([code,name])=>{
-            const count=allEvidence().filter(e=>String(e.course||'').startsWith(code+' ·')||String(e.course||'')===code).length;
-            const state=Number(sem)<3?'completed':Number(sem)===3?'current':'future';
+            const matches=allEvidence().filter(e=>String(e.course||'').startsWith(code+' ·')||String(e.course||'')===code);
+            const count=matches.length;
+            const state=luciaDemoMode
+              ? (Number(sem)<3?'completed':Number(sem)===3?'current':'future')
+              : (count>0?'documented':'empty');
             return `<button class="course-link" data-sem="${sem}" data-state="${state}" data-course="${esc(code)}" data-course-name="${esc(name)}"><strong>${esc(name)}</strong><small>${code}${count?' · '+count+' evid.':''}</small></button>`;
           }).join('')}
         </div>
