@@ -345,3 +345,36 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
     max-width:76%;
   }
 }
+
+/* Keep EAAD brand always visible inside drawer */
+#sideMenu{
+  position:fixed!important;
+  padding-bottom:130px!important;
+}
+.drawer-brand{
+  position:absolute!important;
+  left:24px!important;
+  bottom:24px!important;
+  margin:0!important;
+  padding:0!important;
+  width:auto!important;
+  z-index:2;
+}
+.drawer-brand img{
+  display:block!important;
+  width:220px!important;
+  max-width:220px!important;
+  height:auto!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+@media(max-width:760px){
+  .drawer-brand{
+    left:20px!important;
+    bottom:20px!important;
+  }
+  .drawer-brand img{
+    width:185px!important;
+    max-width:185px!important;
+  }
+}
