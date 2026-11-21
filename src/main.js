@@ -653,18 +653,30 @@ function introspectionView(){
 
     <div class="introspection-repo top-gap">
       <div class="repo-head">
-        <div><div class="k">CURADOR.IA</div><h2>Una lectura que pregunta antes de definir.</h2></div>
+        <div><div class="k">CURADOR.IA</div><h2>Leer la trayectoria, no una sola entrega.</h2></div>
       </div>
-      <p class="m">CURADOR.IA cruza tu evidencia y tus reflexiones para proponer hipótesis tentativas, preguntas y capacidades posibles. La lectura es revisable y no sustituye tu propia interpretación.</p>
-      <div class="grid g2 top-gap">
-        <div class="card">
-          <div class="k">EVIDENCIA DE ENTRADA</div>
-          ${allEvidence()[0] ? `<h2>${esc(allEvidence()[0].project||allEvidence()[0].file_name)}</h2><p class="m">${esc(allEvidence()[0].reflection||'Sin reflexión de proceso')}</p><span class="pill">${esc(allEvidence()[0].course||'')}</span>` : '<h2>Sin evidencia todavía</h2><p class="m">Documenta un proceso para comenzar.</p>'}
-          <button id="aiBtn" class="btn top-gap">Generar lectura</button>
+      <p class="m">CURADOR.IA cruza lo que has documentado y tus reflexiones para detectar recurrencias, tensiones, decisiones y capacidades emergentes. La lectura es provisional: tú decides si te representa.</p>
+      <div class="grid g2 top-gap curator-trajectory-grid">
+        <div class="card trajectory-source-card">
+          <div class="k">FUENTES DE LECTURA</div>
+          <h2>Lo que CURADOR.IA está mirando</h2>
+          <div class="trajectory-stats">
+            <div><b>${allEvidence().length}</b><span>Evidencias</span></div>
+            <div><b>${new Set(allEvidence().map(e=>e.project).filter(Boolean)).size}</b><span>Proyectos</span></div>
+            <div><b>${saved.length}</b><span>Reflexiones</span></div>
+          </div>
+          <div class="trajectory-recent">
+            ${[...new Map(allEvidence().filter(e=>e.project).map(e=>[e.project,e])).values()].slice(0,3).map(e=>`
+              <div class="trajectory-source-row">
+                <span>${esc(e.project)}</span>
+                <small>${esc(e.course||'Sin materia')}${e.stage?' · '+esc(e.stage):''}</small>
+              </div>`).join('') || '<p class="m">Todavía no hay proyectos documentados.</p>'}
+          </div>
         </div>
-        <div class="curator">
-          <div class="k">LECTURA</div>
-          <div id="aiOutput">${latestReading ? readingMarkup(latestReading) : '<h2>Aún no hay lectura.</h2><p class="m">La lectura aparecerá aquí cuando actives CURADOR.IA.</p>'}</div>
+        <div class="curator trajectory-reading-card">
+          <div class="k">LECTURA DE TRAYECTORIA</div>
+          <div id="aiOutput">${latestReading ? readingMarkup(latestReading) : '<h2>Aún no hay lectura.</h2><p>Cuando quieras, CURADOR.IA puede proponer una primera lectura sobre patrones que empiezan a repetirse en tu trayectoria.</p>'}</div>
+          <button id="aiBtn" class="btn top-gap">Generar lectura de mi trayectoria</button>
         </div>
       </div>
     </div>
@@ -962,13 +974,33 @@ async function uploadEvidence(){
 }
 
 async function analyzeLatest(){
-  if(!allEvidence()[0]){$('aiOutput').innerHTML='<p>Primero sube una evidencia.</p>';return;}
-  $('aiOutput').innerHTML='<p>Analizando…</p>';
-  const r=await fetch('/api/curate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    project:allEvidence()[0].project,course:allEvidence()[0].course,reflection:allEvidence()[0].reflection
-  })});
+  const rows=allEvidence();
+  const refs=careerReflections();
+  if(!rows.length && !refs.length){
+    $('aiOutput').innerHTML='<p>Primero documenta un proyecto o guarda una reflexión.</p>';
+    return;
+  }
+  $('aiOutput').innerHTML='<p>Construyendo una lectura de tu trayectoria…</p>';
+  const projects=[...new Map(rows.filter(e=>e.project).map(e=>[e.project,e])).values()];
+  const processNotes=uniqueProjectReflections(rows).slice(0,8).map(e=>e.reflection).filter(Boolean);
+  const careerNotes=refs.slice(0,8).map(r=>`${r.question}: ${r.answer}`);
+  const reflection=[
+    ...projects.slice(0,8).map(e=>`Proyecto: ${e.project} · Materia: ${e.course||'—'} · Etapa: ${e.stage||'—'}`),
+    ...processNotes,
+    ...careerNotes
+  ].join('\n\n').slice(0,12000);
+
+  const r=await fetch('/api/curate',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      project:'Trayectoria acumulada',
+      course:'Múltiples materias y proyectos',
+      reflection
+    })
+  });
   const data=await r.json();
-  if(!r.ok){$('aiOutput').innerHTML=`<p>${esc(data.error||'No se pudo analizar.')}</p>`;return;}
+  if(!r.ok){$('aiOutput').innerHTML=`<p>${esc(data.error||'No se pudo generar la lectura.')}</p>`;return;}
   latestReading=data;
   $('aiOutput').innerHTML=readingMarkup(data);
 }
