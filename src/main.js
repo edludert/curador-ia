@@ -142,6 +142,19 @@ function authMarkup(){
               </select>
             </div>
           </div>
+          <div class="field"><label>Campus</label>
+            <select id="signupCampus">
+              <option value="">Selecciona campus</option>
+              <option value="Querétaro">Querétaro</option>
+              <option value="Monterrey">Monterrey</option>
+              <option value="León">León</option>
+              <option value="Sonora Norte">Sonora Norte</option>
+              <option value="Puebla">Puebla</option>
+              <option value="Ciudad de México">Ciudad de México</option>
+              <option value="Guadalajara">Guadalajara</option>
+              <option value="Estado de México">Estado de México</option>
+            </select>
+          </div>
         </div>
         <div class="field"><label>Tipo de cuenta</label><input id="signupAccountType" value="Estudiante" disabled></div>\n        <div id="teacherPilotNote" class="teacher-pilot-note hidden">Correo docente autorizado · contraseña piloto: <b>${TEACHER_PILOT_PASSWORD}</b></div>
         <div class="field"><label>Email</label><input id="signupEmail" type="email"></div>
@@ -975,8 +988,9 @@ async function refresh(){
       const lastName=toTitleCaseName($('signupLastName')?.value||'');
       const matricula=$('signupMatricula')?.value.trim().toUpperCase()||'';
       const semester=$('signupSemester')?.value||'';
+      const campus=$('signupCampus')?.value||'';
       if(!firstName || !lastName){$('signupStatus').textContent='Escribe nombre y apellido.';return;}
-      if(!isTeacher && (!matricula || !semester)){$('signupStatus').textContent='Para estudiantes, matrícula y semestre son obligatorios.';return;}
+      if(!isTeacher && (!matricula || !semester || !campus)){$('signupStatus').textContent='Para estudiantes, matrícula, semestre y campus son obligatorios.';return;}
       if(isTeacher && $('signupPassword')) $('signupPassword').value=TEACHER_PILOT_PASSWORD;
       const fullName=[firstName,lastName].filter(Boolean).join(' ');
       const {error}=await supabase.auth.signUp({
@@ -990,6 +1004,7 @@ async function refresh(){
             name:fullName,
             matricula:isTeacher?null:matricula,
             semester:isTeacher?null:Number(semester),
+            campus:isTeacher?null:campus,
             role:isTeacher?'teacher':'student'
           }
         }
