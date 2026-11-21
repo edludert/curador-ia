@@ -561,35 +561,88 @@ async function hydrateCourseEvidence(){
 }
 
 function capabilitiesView(){
+  const competencyFramework=[
+    {
+      code:'C26DI0001',
+      name:'Diseño de productos y sistemas',
+      subs:[
+        ['S26AR0009','Fundamentos y procesos de diseño'],
+        ['S26AR0008','Investigación'],
+        ['S26DI0002','Comunicación del diseño']
+      ]
+    },
+    {
+      code:'C26DI0002',
+      name:'Diseño para la vida',
+      subs:[
+        ['S26DI0003','Pensamiento sistémico'],
+        ['S26DI0004','Identidad cultural'],
+        ['S26DI0005','Innovación social y ambiental responsable']
+      ]
+    },
+    {
+      code:'C26DI0003',
+      name:'Cultura del diseño',
+      subs:[
+        ['S26A0001','Historia y teoría'],
+        ['S26DI0006','Retórica especializada de diseño']
+      ]
+    },
+    {
+      code:'C26DI0004',
+      name:'Humanización tecnológica',
+      subs:[
+        ['S26DI0001','Pensamiento matemático, físico y computacional'],
+        ['S26DI0007','Generación de productos tecnológicos'],
+        ['S26DI0008','Diseño especulativo y realidades tecnológicas']
+      ]
+    },
+    {
+      code:'C26DI0005',
+      name:'Gestión de la creatividad',
+      subs:[
+        ['S26EM0012','Emprendimiento para industrias creativas'],
+        ['S26DI0009','Desarrollo de portafolio creativo'],
+        ['S26EM0003','Emprendimiento']
+      ]
+    }
+  ];
+
   return `
   <section class="view active">
-    <div class="k">CAPACIDADES</div><h1>Lo que se vuelve visible al hacer.</h1>
-    <p class="lead">Las capacidades no son etiquetas fijas. Se sostienen con evidencias y se fortalecen cuando reaparecen en distintos proyectos, materias y decisiones.</p>
-    <div class="cap-groups">
-      ${capabilities.map(([group,items])=>`
-        <div class="cap-group"><h4>${group}</h4><div class="cap-list">
-          ${items.map(x=>`<button class="cap-chip ${x===selectedCapability?'active':''}" data-cap="${esc(x)}">${esc(x)}</button>`).join('')}
-        </div></div>`).join('')}
+    <div class="k">CAPACIDADES</div>
+    <h1>Competencias que se hacen visibles en el proceso.</h1>
+    <p class="lead">Esta lectura parte de las 5 competencias y 14 subcompetencias de LDI. Por ahora se muestran como estructura curricular; más adelante CURADOR.IA podrá relacionarlas con evidencias concretas del estudiante.</p>
+
+    <div class="competency-grid">
+      ${competencyFramework.map((comp,index)=>`
+        <article class="competency-card">
+          <div class="competency-head">
+            <div>
+              <span class="competency-index">0${index+1}</span>
+              <div class="k">${esc(comp.code)}</div>
+              <h2>${esc(comp.name)}</h2>
+            </div>
+            <span class="pill">${comp.subs.length} subcompetencias</span>
+          </div>
+          <div class="subcompetency-list">
+            ${comp.subs.map(([code,name])=>`
+              <button class="subcompetency-row" data-cap="${esc(name)}">
+                <span>
+                  <small>${esc(code)}</small>
+                  <strong>${esc(name)}</strong>
+                </span>
+                <span class="subcompetency-state">Por leer</span>
+              </button>`).join('')}
+          </div>
+        </article>`).join('')}
     </div>
-    <div class="grid g2 top-gap">
-      <div class="skill-detail">
-        <div class="k">LECTURA ACTUAL</div><div class="big" id="capTitle">${esc(selectedCapability)}</div>
-        <p class="m" id="capText">${capabilityDescription(selectedCapability)}</p>
-        <div class="cap-evidence">${allEvidence().length} evidencias disponibles para contrastar esta capacidad.</div>
-      </div>
-      <div class="card"><div class="k">PRINCIPIO</div><h2>Evidencia antes que etiqueta.</h2><p class="m">CURADOR.IA puede sugerir una capacidad; el estudiante decide si la reconoce, la cuestiona o necesita más evidencia.</p></div>
+
+    <div class="card competency-note">
+      <div class="k">SIGUIENTE CAPA</div>
+      <p>Los indicadores PR quedarán asociados a cada subcompetencia. La intención es que CURADOR.IA sugiera relaciones entre evidencia y competencia, y que el estudiante pueda validarlas o cuestionarlas.</p>
     </div>
   </section>`;
-}
-
-function capabilityDescription(name){
-  const map={
-    'Experimentación':'Prueba alternativas, tolera incertidumbre y convierte fallos o desviaciones en información para la siguiente decisión.',
-    'Visualización':'Usa imágenes, diagramas, dibujo o representación para pensar, comunicar y descubrir relaciones.',
-    'Investigación':'Formula preguntas, busca referencias, observa y conecta información con decisiones de diseño.',
-    'Criterio de diseño':'Hace elecciones justificadas, descarta alternativas y sostiene decisiones con intención.'
-  };
-  return map[name] || 'Capacidad tentativa que debe leerse a través de evidencias, recurrencias y decisiones documentadas.';
 }
 
 function dnaView(){
