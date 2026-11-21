@@ -435,3 +435,14 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
   .process-stage-grid{grid-template-columns:1fr}
   .process-stage .m{min-height:auto}
 }
+
+.brief-field{margin-top:14px;margin-bottom:0}
+.brief-field textarea{min-height:190px}
+.upload-reflection-grid{display:grid;gap:14px;margin-top:18px}
+.reflection-fields textarea{min-height:130px}
+.process-save-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.process-save-row .save-process-btn{margin:0}
+.process-save-row .status{margin:0}
+@media(max-width:760px){
+  .reflection-fields{grid-template-columns:1fr}
+}
