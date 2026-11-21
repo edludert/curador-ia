@@ -225,11 +225,15 @@ function homeView(){
     : 'Tu perfil todavía está comenzando. A medida que documentes procesos, CURADOR.IA podrá detectar recurrencias, decisiones, formas de hacer y capacidades emergentes.';
   return `
   <section class="view active clean-home">
-    <div class="home-corner-logo"><img src="/logo-eaad.png?v=2" alt="Tecnológico de Monterrey · Escuela de Arquitectura, Arte y Diseño"></div>
-    <div class="eyebrow">${profile?.role==='teacher'?'VISTA DOCENTE':'PERFIL EN CONSTRUCCIÓN'}</div>
+    <div class="home-topbar">
+      <div class="home-topbar-left">
+        <div class="eyebrow">${profile?.role==='teacher'?'VISTA DOCENTE':'PERFIL EN CONSTRUCCIÓN'}</div>
     ${profile?.role==='student'?'<div class="home-welcome">Bienvenido(a), '+esc(toTitleCaseName(profile?.name || '') || session?.user?.email || 'Estudiante')+'</div>':''}
     <h1>Haz visible cómo piensas, decides y creas.</h1>
     <p class="intro">CURADOR.IA acompaña la trayectoria y convierte evidencias, decisiones, reflexiones y feedback en un archivo vivo de proceso humano y ADN creativo.</p>
+      </div>
+      <div class="home-corner-logo"><img src="/logo-eaad.png?v=3" alt="Tecnológico de Monterrey · Escuela de Arquitectura, Arte y Diseño"></div>
+    </div>
     <div class="home-actions">
       ${profile?.role==='teacher'?'':'<button class="btn" id="homeAddEvidence">Documentar proceso</button>'}
       <button class="btn ghost" data-go="${profile?.role==='teacher'?'review':'archive'}">${profile?.role==='teacher'?'Revisar procesos':'Abrir bóveda'}</button>
