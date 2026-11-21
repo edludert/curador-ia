@@ -446,3 +446,19 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 @media(max-width:760px){
   .reflection-fields{grid-template-columns:1fr}
 }
+
+.curator-trajectory-grid{align-items:stretch}
+.trajectory-source-card,.trajectory-reading-card{min-height:360px}
+.trajectory-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#222;border:1px solid #222;border-radius:12px;overflow:hidden;margin:18px 0}
+.trajectory-stats>div{background:#0a0a0a;padding:16px}
+.trajectory-stats b{display:block;font-size:28px;line-height:1;margin-bottom:5px}
+.trajectory-stats span{font-size:10px;color:#777;text-transform:uppercase;letter-spacing:.08em}
+.trajectory-recent{display:grid;gap:8px}
+.trajectory-source-row{padding:10px 0;border-top:1px solid #242424}
+.trajectory-source-row span{display:block;font-size:13px;color:#fff}
+.trajectory-source-row small{display:block;margin-top:3px;color:#777}
+.trajectory-reading-card{display:flex;flex-direction:column}
+.trajectory-reading-card #aiOutput{flex:1}
+@media(max-width:760px){
+  .trajectory-stats{grid-template-columns:1fr}
+}
