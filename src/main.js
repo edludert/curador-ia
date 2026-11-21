@@ -142,6 +142,8 @@ function authMarkup(){
               </select>
             </div>
           </div>
+
+        </div>
           <div class="field"><label>Campus</label>
             <select id="signupCampus">
               <option value="">Selecciona campus</option>
@@ -155,7 +157,6 @@ function authMarkup(){
               <option value="Estado de México">Estado de México</option>
             </select>
           </div>
-        </div>
         <div class="field"><label>Tipo de cuenta</label><input id="signupAccountType" value="Estudiante" disabled></div>\n        <div id="teacherPilotNote" class="teacher-pilot-note hidden">Correo docente autorizado · contraseña piloto: <b>${TEACHER_PILOT_PASSWORD}</b></div>
         <div class="field"><label>Email</label><input id="signupEmail" type="email"></div>
         <div class="field"><label>Contraseña</label><input id="signupPassword" type="password"></div>
@@ -613,12 +614,12 @@ function profileProjects(){
 function teacherStudentsView(){
   const list=students.length?students:demoStudents;
   return `
-  <section class="view active"><div class="k">DOCENTE</div><h1>Estudiantes</h1>
+  <section class="view active"><div class="k">DOCENTE · ${esc(profile?.campus||'Campus sin asignar')}</div><h1>Estudiantes</h1>
   ${pilotTeacherMode?'<div class="notice">Estás en modo profesor piloto. Esta vista usa datos simulados y no puede consultar estudiantes reales de Supabase. Para ver a Edgar necesitas entrar con una cuenta real cuyo rol en profiles sea teacher.</div>':''}
   <p class="lead">Las cuentas reales registradas como estudiantes aparecen aquí automáticamente, aunque todavía no hayan subido evidencia.</p>
   <div class="teacher-grid"><div class="teacher-card">${list.map(s=>{
     const count=evidence.filter(e=>e.student_id===s.id || e.profiles?.name===s.name).length;
-    return `<div class="student-row"><div><b>${esc(s.name||'Estudiante')}</b><div class="signal">${count} evidencias · ${count?'proceso activo':'aún sin evidencias'}</div></div><button class="btn ghost small" data-go="review">Revisar</button></div>`;
+    return `<div class="student-row"><div><b>${esc(toTitleCaseName(s.name||'Estudiante'))}</b><div class="signal">${esc(s.campus||'Sin campus')} · Semestre ${esc(s.semester||'—')} · ${count} evidencias · ${count?'proceso activo':'aún sin evidencias'}</div></div><button class="btn ghost small" data-go="review">Revisar</button></div>`;
   }).join('')}</div><div class="teacher-card"><div class="k">PRINCIPIO</div><h2>Ver lo que el estudiante todavía no ve.</h2><p class="m">La lectura del profesor entra como señal externa y requiere interpretación del estudiante.</p></div></div></section>`;
 }
 
@@ -902,14 +903,22 @@ async function loadData(){
     return;
   }
   if(profile?.role==='teacher'||profile?.role==='admin'){
-    const pr=await supabase.from('profiles').select('id,name,role').eq('role','student').order('name',{ascending:true});
+    let prq=supabase.from('profiles').select('id,name,role,campus,semester,matricula').eq('role','student').order('name',{ascending:true});
+    if(profile?.role==='teacher' && profile?.campus) prq=prq.eq('campus',profile.campus);
+    const pr=await prq;
     students=pr.data||[];
     if(pr.error) console.warn(pr.error);
   } else {
     students=[];
   }
-  let q=supabase.from('evidence').select('*,profiles!evidence_student_id_fkey(name)').order('created_at',{ascending:false});
-  if(profile?.role==='student') q=q.eq('student_id',session.user.id);
+  let q=supabase.from('evidence').select('*,profiles!evidence_student_id_fkey(name,campus,semester)').order('created_at',{ascending:false});
+  if(profile?.role==='student') {
+    q=q.eq('student_id',session.user.id);
+  } else if(profile?.role==='teacher' && profile?.campus) {
+    const campusStudentIds=students.map(s=>s.id);
+    if(campusStudentIds.length) q=q.in('student_id',campusStudentIds);
+    else q=q.eq('student_id','00000000-0000-0000-0000-000000000000');
+  }
   const er=await q;
   evidence=er.data||[];
   if(er.error) console.warn(er.error);
@@ -990,7 +999,8 @@ async function refresh(){
       const semester=$('signupSemester')?.value||'';
       const campus=$('signupCampus')?.value||'';
       if(!firstName || !lastName){$('signupStatus').textContent='Escribe nombre y apellido.';return;}
-      if(!isTeacher && (!matricula || !semester || !campus)){$('signupStatus').textContent='Para estudiantes, matrícula, semestre y campus son obligatorios.';return;}
+      if(!campus){$('signupStatus').textContent='Selecciona un campus.';return;}
+      if(!isTeacher && (!matricula || !semester)){$('signupStatus').textContent='Para estudiantes, matrícula y semestre son obligatorios.';return;}
       if(isTeacher && $('signupPassword')) $('signupPassword').value=TEACHER_PILOT_PASSWORD;
       const fullName=[firstName,lastName].filter(Boolean).join(' ');
       const {error}=await supabase.auth.signUp({
@@ -1004,7 +1014,7 @@ async function refresh(){
             name:fullName,
             matricula:isTeacher?null:matricula,
             semester:isTeacher?null:Number(semester),
-            campus:isTeacher?null:campus,
+            campus,
             role:isTeacher?'teacher':'student'
           }
         }
