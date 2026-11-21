@@ -201,7 +201,7 @@ function shellMarkup(){
       <nav id="nav">${navItems().map(([id,label])=>`<button data-view="${id}" class="${id===currentView?'active':''}">${label}</button>`).join('')}</nav>
       <button id="logoutBtn" class="logout">Cerrar sesión</button>
       <div class="drawer-brand">
-        <img src="/logo-eaad.png?v=4" alt="Tecnológico de Monterrey · Escuela de Arquitectura, Arte y Diseño">
+        <img src="/drawer-logo.png?v=1" alt="Tecnológico de Monterrey · Escuela de Arquitectura, Arte y Diseño">
       </div>
     </aside>
     <main id="mainView"></main>
