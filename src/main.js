@@ -169,8 +169,8 @@ function authMarkup(){
 
 function navItems(){
   const student = [
-    ['home','Inicio'],['upload','Subir proceso'],['archive','Archivo'],['courses','Materias'],['capabilities','Capacidades'],
-    ['dna','ADN'],['introspection','Introspección'],['curator','CURADOR.IA'],['profile','Perfil vivo']
+    ['home','Inicio'],['upload','Documentar proceso'],['archive','Bóveda'],['courses','Línea del tiempo'],['capabilities','Capacidades'],
+    ['dna','ADN'],['introspection','Introspección + CURADOR.IA'],['profile','Perfil vivo']
   ];
   const teacher = [
     ['home','Inicio'],['students','Estudiantes'],['review','Revisar proceso'],['dna','Lectura ADN'],['feedback','Feedback']
@@ -206,9 +206,9 @@ function homeView(){
     <h1>Haz visible cómo piensas, decides y creas.</h1>
     <p class="intro">CURADOR.IA acompaña la trayectoria y convierte evidencias, decisiones, reflexiones y feedback en un archivo vivo de proceso humano y ADN creativo.</p>
     <div class="home-actions">
-      ${profile?.role==='teacher'?'':'<button class="btn" id="homeAddEvidence">+ Agregar evidencia</button>'}
-      <button class="btn ghost" data-go="${profile?.role==='teacher'?'review':'archive'}">${profile?.role==='teacher'?'Revisar procesos':'Abrir archivo'}</button>
-      <button class="btn ghost" data-go="${profile?.role==='teacher'?'feedback':'curator'}">${profile?.role==='teacher'?'Dar feedback':'Hablar con CURADOR.IA'}</button>
+      ${profile?.role==='teacher'?'':'<button class="btn" id="homeAddEvidence">Documentar proceso</button>'}
+      <button class="btn ghost" data-go="${profile?.role==='teacher'?'review':'archive'}">${profile?.role==='teacher'?'Revisar procesos':'Abrir bóveda'}</button>
+      <button class="btn ghost" data-go="${profile?.role==='teacher'?'feedback':'introspection'}">${profile?.role==='teacher'?'Dar feedback':'Introspección + CURADOR.IA'}</button>
     </div>
     <div class="home-index">
       <div><span class="k">EVIDENCIAS</span><b>${total}</b></div>
@@ -308,7 +308,7 @@ function reflectionCards(){
 function uploadView(){
   return `
   <section class="view active">
-    <div class="k">NUEVA ENTRADA</div>
+    <div class="k">DOCUMENTAR PROCESO</div>
     <h1>Documentar un proyecto</h1>
     <p class="lead">La unidad básica no es el archivo: es el proyecto + su proceso.</p>
 
@@ -376,7 +376,7 @@ async function archiveView(){
   const dynamicCards = await Promise.all(allEvidence().map(evidenceCard));
   return `
   <section class="view active">
-    <div class="k">ARCHIVO VIVO</div><h1>Proceso antes que resultado.</h1>
+    <div class="k">BÓVEDA</div><h1>Proceso antes que resultado.</h1>
     <p class="lead">Aquí conviven bocetos, pruebas, mapas, textos, errores, decisiones, imágenes, videos y reflexiones. No es una galería de “finales”; es trazabilidad.</p>
     <div class="archive-toolbar">
       <button class="btn" id="openUpload">+ Nueva evidencia</button>
@@ -400,7 +400,7 @@ async function archiveView(){
 function coursesView(){
   return `
   <section class="view active">
-    <div class="k">TRAYECTORIA</div><h1>Materias</h1>
+    <div class="k">TRAYECTORIA</div><h1>Línea del tiempo</h1>
     <p class="lead">La estructura académica funciona como índice del archivo. En esta prueba, el primer semestre aparece activo y el resto anticipa el recorrido.</p>
     ${Object.entries(curriculum).map(([sem,items])=>`
       <div class="semester-block">
@@ -562,26 +562,28 @@ function introspectionView(){
           </div>`}
       </div>
     </div>
-  </section>`;
-}
 
-function curatorView(){
-  return `
-  <section class="view active">
-    <div class="k">CURADOR.IA</div><h1>Una lectura que pregunta antes de definir.</h1>
-    <p class="lead">Analiza la evidencia más reciente para proponer una hipótesis tentativa, una pregunta y capacidades posibles. Mientras la API no tenga créditos, usamos el modo simulación.</p>
-    <div class="grid g2">
-      <div class="card">
-        <div class="k">EVIDENCIA DE ENTRADA</div>
-        ${allEvidence()[0] ? `<h2>${esc(allEvidence()[0].project||allEvidence()[0].file_name)}</h2><p class="m">${esc(allEvidence()[0].reflection||'Sin reflexión')}</p><span class="pill">${esc(allEvidence()[0].course||'')}</span>` : '<h2>Sin evidencia todavía</h2><p class="m">Sube una evidencia desde Archivo para comenzar.</p>'}
-        <button id="aiBtn" class="btn top-gap">Analizar evidencia más reciente</button>
+    <div class="introspection-repo top-gap">
+      <div class="repo-head">
+        <div><div class="k">CURADOR.IA</div><h2>Una lectura que pregunta antes de definir.</h2></div>
       </div>
-      <div class="curator">
-        <div class="k">LECTURA</div><div id="aiOutput">${latestReading ? readingMarkup(latestReading) : '<h2>Aún no hay lectura.</h2><p class="m">La lectura aparecerá aquí.</p>'}</div>
+      <p class="m">CURADOR.IA cruza tu evidencia y tus reflexiones para proponer hipótesis tentativas, preguntas y capacidades posibles. La lectura es revisable y no sustituye tu propia interpretación.</p>
+      <div class="grid g2 top-gap">
+        <div class="card">
+          <div class="k">EVIDENCIA DE ENTRADA</div>
+          ${allEvidence()[0] ? `<h2>${esc(allEvidence()[0].project||allEvidence()[0].file_name)}</h2><p class="m">${esc(allEvidence()[0].reflection||'Sin reflexión de proceso')}</p><span class="pill">${esc(allEvidence()[0].course||'')}</span>` : '<h2>Sin evidencia todavía</h2><p class="m">Documenta un proceso para comenzar.</p>'}
+          <button id="aiBtn" class="btn top-gap">Generar lectura</button>
+        </div>
+        <div class="curator">
+          <div class="k">LECTURA</div>
+          <div id="aiOutput">${latestReading ? readingMarkup(latestReading) : '<h2>Aún no hay lectura.</h2><p class="m">La lectura aparecerá aquí cuando actives CURADOR.IA.</p>'}</div>
+        </div>
       </div>
     </div>
   </section>`;
 }
+
+function curatorView(){ return introspectionView(); }
 
 function readingMarkup(data){
   return `${data.simulation?'<span class="sim">SIMULACIÓN</span>':''}<h2>Hipótesis</h2><p>${esc(data.hypothesis)}</p><h3>Pregunta</h3><p>${esc(data.question)}</p><h3>Capacidades posibles</h3><div class="row">${(data.capabilities||[]).map(c=>`<span class="pill dark">${esc(c)}</span>`).join('')}</div>${data.note?`<p class="mini">${esc(data.note)}</p>`:''}`;
@@ -654,7 +656,7 @@ async function renderView(){
     capabilities:()=>capabilitiesView(),
     dna:()=>dnaView(),
     introspection:()=>introspectionView(),
-    curator:()=>curatorView(),
+    curator:()=>introspectionView(),
     profile:()=>profileView(),
     students:()=>teacherStudentsView(),
     review:()=>teacherReviewView(),
@@ -666,7 +668,7 @@ async function renderView(){
 
 function setView(id){
   currentView=id;
-  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id || (id==='courseDetail' && b.dataset.view==='courses')));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',(b.dataset.view===id) || (id==='curator' && b.dataset.view==='introspection') || (id==='courseDetail' && b.dataset.view==='courses')));
   renderView();
 }
 
