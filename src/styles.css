@@ -465,7 +465,7 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 
 .competency-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:24px}
 .competency-card{border:1px solid #292929;border-radius:14px;background:#080808;padding:18px}
-.competency-card:last-child:nth-child(odd){grid-column:1/-1}
+
 .competency-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:16px}
 .competency-head h2{font-size:24px;max-width:520px}
 .competency-index{display:block;font-size:30px;font-weight:800;color:#232323;line-height:1;margin-bottom:8px}
@@ -475,10 +475,12 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 .subcompetency-row small{display:block;color:#666;font-size:9px;letter-spacing:.08em;margin-bottom:4px}
 .subcompetency-row strong{display:block;font-size:13px}
 .subcompetency-state{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#666;white-space:nowrap}
-.competency-note{margin-top:14px}
-.competency-note p{margin-bottom:0;color:#aaa}
+
 @media(max-width:900px){
   .competency-grid{grid-template-columns:1fr}
   .competency-card:last-child:nth-child(odd){grid-column:auto}
   .competency-head{flex-direction:column}
 }
+
+.competency-grid{align-items:stretch}
+.competency-card{height:100%}
