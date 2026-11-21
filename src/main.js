@@ -169,7 +169,7 @@ function authMarkup(){
 
 function navItems(){
   const student = [
-    ['home','Inicio'],['upload','Documentar proceso'],['archive','Bóveda'],['courses','Línea del tiempo'],['capabilities','Capacidades'],
+    ['home','Inicio'],['upload','Documentar proceso'],['archive','Bóveda'],['courses','Línea del tiempo'],['capabilities','Competencias'],
     ['dna','ADN'],['introspection','Introspección']
   ];
   const teacher = [
@@ -610,7 +610,7 @@ function capabilitiesView(){
 
   return `
   <section class="view active">
-    <div class="k">CAPACIDADES</div>
+    <div class="k">COMPETENCIAS</div>
     <h1>Competencias que se hacen visibles en el proceso.</h1>
     <p class="lead">Esta lectura parte de las 5 competencias y 14 subcompetencias de LDI. Por ahora se muestran como estructura curricular; más adelante CURADOR.IA podrá relacionarlas con evidencias concretas del estudiante.</p>
 
@@ -636,11 +636,6 @@ function capabilitiesView(){
               </button>`).join('')}
           </div>
         </article>`).join('')}
-    </div>
-
-    <div class="card competency-note">
-      <div class="k">SIGUIENTE CAPA</div>
-      <p>Los indicadores PR quedarán asociados a cada subcompetencia. La intención es que CURADOR.IA sugiera relaciones entre evidencia y competencia, y que el estudiante pueda validarlas o cuestionarlas.</p>
     </div>
   </section>`;
 }
