@@ -323,7 +323,7 @@ async function evidenceCard(e){
     ${(!String(e.id||'').startsWith('demo-') && profile?.role==='student') ? `<button class="evidence-delete" data-delete-evidence="${esc(e.id)}" data-file-path="${esc(e.file_path||'')}" aria-label="Eliminar evidencia" title="Eliminar evidencia">×</button>` : ''}
     ${media}
     <div class="meta">
-      <span class="type">Semestre ${esc(e.semester||'—')} · ${esc(e.course||'Sin materia')}</span>
+      <span class="type">${e.stage?esc(e.stage)+' · ':''}Semestre ${esc(e.semester||'—')} · ${esc(e.course||'Sin materia')}</span>
       <b>${esc(e.project||e.file_name||'Evidencia')}</b>
     </div>
   </article>`;
@@ -379,7 +379,7 @@ function uploadView(){
   <section class="view active">
     <div class="k">DOCUMENTAR PROCESO</div>
     <h1>Documentar un proyecto</h1>
-    <p class="lead">La unidad básica no es el archivo: es el proyecto + su proceso.</p>
+    <p class="lead">La unidad básica no es el archivo: es el proyecto + su proceso. Organiza la evidencia según el momento en que apareció.</p>
 
     <div class="grid g2">
       <div class="card">
@@ -390,26 +390,56 @@ function uploadView(){
         <div class="notice">Cada proyecto queda ligado a una materia y semestre para construir la trazabilidad completa de la trayectoria.</div>
       </div>
 
-      <div class="card">
+      <div class="card process-map-card">
         <div class="k">PROCESO HUMANO</div>
-        <h2>Sube evidencia, no sólo entregables</h2>
-        <div class="types">
-          <div class="type"><b>Bocetos</b><small class="m">sketches, thumbnails</small></div>
-          <div class="type"><b>Mapas</b><small class="m">conceptos, sistemas</small></div>
-          <div class="type"><b>Textos</b><small class="m">notas, bitácora</small></div>
-          <div class="type"><b>Pruebas</b><small class="m">prototipos, errores</small></div>
-          <div class="type"><b>Contexto</b><small class="m">campo, materiales</small></div>
-          <div class="type"><b>Reflexiones</b><small class="m">qué cambió y por qué</small></div>
+        <h2>Tres momentos del proyecto</h2>
+        <div class="process-steps">
+          <div><b>01 · Investigación</b><span>Comprender, observar, mapear.</span></div>
+          <div><b>02 · Conceptualización</b><span>Imaginar, relacionar, proponer.</span></div>
+          <div><b>03 · Prototipado</b><span>Construir, probar, materializar.</span></div>
         </div>
-        <div class="drop" id="drop">
-          <input id="files" type="file" multiple accept="image/*,video/*,audio/*,.pdf">
-          <b>Arrastra aquí tu proceso</b>
-          <p class="m">o</p>
-          <button id="pick" type="button" class="btn ghost small">Seleccionar archivos</button>
+      </div>
+    </div>
+
+    <div class="process-stage-grid">
+      <article class="process-stage">
+        <div class="stage-number">01</div>
+        <div class="k">INVESTIGACIÓN</div>
+        <h2>Comprender antes de proponer</h2>
+        <p class="m">Mapas, esquemas, diagramas, moodboards, investigación de campo, referentes, registros, fotografías, notas y hallazgos.</p>
+        <div class="drop stage-drop">
+          <input id="researchFiles" type="file" multiple accept="image/*,video/*,audio/*,.pdf">
+          <button id="pickResearch" type="button" class="btn ghost small">Seleccionar archivos</button>
           <p class="m mini">Imágenes · PDF · audio · video</p>
         </div>
-        <div id="fileList" class="files"></div>
-      </div>
+        <div id="researchFileList" class="files"></div>
+      </article>
+
+      <article class="process-stage">
+        <div class="stage-number">02</div>
+        <div class="k">CONCEPTUALIZACIÓN</div>
+        <h2>Dar forma a las ideas</h2>
+        <p class="m">Sketches, mapas mentales, thumbnails, mockups, storyboards, exploraciones formales, alternativas y primeras propuestas.</p>
+        <div class="drop stage-drop">
+          <input id="conceptFiles" type="file" multiple accept="image/*,video/*,audio/*,.pdf">
+          <button id="pickConcept" type="button" class="btn ghost small">Seleccionar archivos</button>
+          <p class="m mini">Imágenes · PDF · audio · video</p>
+        </div>
+        <div id="conceptFileList" class="files"></div>
+      </article>
+
+      <article class="process-stage">
+        <div class="stage-number">03</div>
+        <div class="k">PROTOTIPADO</div>
+        <h2>Materializar y probar</h2>
+        <p class="m">Renders, modelos, planos, maquetas, prototipos, pruebas materiales, iteraciones, piezas funcionales y versiones finales.</p>
+        <div class="drop stage-drop">
+          <input id="prototypeFiles" type="file" multiple accept="image/*,video/*,audio/*,.pdf">
+          <button id="pickPrototype" type="button" class="btn ghost small">Seleccionar archivos</button>
+          <p class="m mini">Imágenes · PDF · audio · video</p>
+        </div>
+        <div id="prototypeFileList" class="files"></div>
+      </article>
     </div>
 
     <div class="grid g2 upload-reflection-grid">
@@ -431,7 +461,7 @@ function uploadView(){
         </div>
         <div class="card upload-meta-card">
           <div class="k">METADATA</div>
-          <div class="row"><span class="pill">proceso</span><span class="pill">decisión</span><span class="pill">autoría</span><span class="pill">aprendizaje</span></div>
+          <div class="row"><span class="pill">investigación</span><span class="pill">conceptualización</span><span class="pill">prototipado</span></div>
           <p class="m mini mono">autoría_humana: por documentar · uso_ia: por declarar · reflexión: requerida</p>
         </div>
         <button id="saveProcessBtn" class="btn save-process-btn">Guardar proyecto + proceso</button>
@@ -787,8 +817,12 @@ function bindView(){
     });
   });
   if($('semester')) {$('semester').onchange=populateCourses;populateSemesters();}
-  if($('pick')&&$('files')) $('pick').onclick=()=>$('files').click();
-  if($('files')) $('files').onchange=renderSelectedFiles;
+  if($('pickResearch')&&$('researchFiles')) $('pickResearch').onclick=()=>$('researchFiles').click();
+  if($('pickConcept')&&$('conceptFiles')) $('pickConcept').onclick=()=>$('conceptFiles').click();
+  if($('pickPrototype')&&$('prototypeFiles')) $('pickPrototype').onclick=()=>$('prototypeFiles').click();
+  if($('researchFiles')) $('researchFiles').onchange=()=>renderSelectedFiles('researchFiles','researchFileList');
+  if($('conceptFiles')) $('conceptFiles').onchange=()=>renderSelectedFiles('conceptFiles','conceptFileList');
+  if($('prototypeFiles')) $('prototypeFiles').onchange=()=>renderSelectedFiles('prototypeFiles','prototypeFileList');
   if($('curateUploadBtn')) $('curateUploadBtn').onclick=curateProcessDraft;
   if($('saveProcessBtn')) $('saveProcessBtn').onclick=uploadProcess;
   if($('uploadBtn')) $('uploadBtn').onclick=uploadEvidence;
@@ -835,11 +869,14 @@ function bindView(){
   if(currentView==='courseDetail') hydrateCourseEvidence();
 }
 
-function renderSelectedFiles(){
-  const list=$('fileList');
-  if(!list||!$('files')) return;
-  const files=[...$('files').files];
-  list.innerHTML=files.length?files.map(f=>`<div class="file-row"><span>${esc(f.name)}</span><small>${Math.max(1,Math.round(f.size/1024))} KB</small></div>`).join(''):'';
+function renderSelectedFiles(inputId,listId){
+  const input=$(inputId);
+  const list=$(listId);
+  if(!input||!list) return;
+  const files=[...input.files];
+  list.innerHTML=files.length
+    ? files.map(f=>`<div class="file-row"><span>${esc(f.name)}</span><small>${Math.max(1,Math.round(f.size/1024))} KB</small></div>`).join('')
+    : '';
 }
 
 function curateProcessDraft(){
@@ -857,10 +894,14 @@ function curateProcessDraft(){
 }
 
 async function uploadProcess(){
-  const files=[...($('files')?.files||[])];
+  const stagedFiles=[
+    ...[...($('researchFiles')?.files||[])].map(file=>({file,stage:'Investigación'})),
+    ...[...($('conceptFiles')?.files||[])].map(file=>({file,stage:'Conceptualización'})),
+    ...[...($('prototypeFiles')?.files||[])].map(file=>({file,stage:'Prototipado'}))
+  ];
   const project=$('projectName')?.value.trim();
   if(!project){$('uploadStatus').textContent='Escribe el nombre del proyecto.';return;}
-  if(!files.length){$('uploadStatus').textContent='Selecciona al menos un archivo de proceso.';return;}
+  if(!stagedFiles.length){$('uploadStatus').textContent='Selecciona al menos un archivo en alguna etapa del proceso.';return;}
   const reflection=[
     $('brief')?.value.trim()&&`Brief / reto: ${$('brief').value.trim()}`,
     $('intent')?.value.trim()&&`Intención: ${$('intent').value.trim()}`,
@@ -868,8 +909,9 @@ async function uploadProcess(){
     $('friction')?.value.trim()&&`Fricción / cambio: ${$('friction').value.trim()}`,
     $('aiUse')?.value.trim()&&`Intervención de IA: ${$('aiUse').value.trim()}`
   ].filter(Boolean).join('\n\n');
+
   $('uploadStatus').textContent='Guardando proceso…';
-  for(const file of files){
+  for(const {file,stage} of stagedFiles){
     const path=safeStoragePath(session.user.id,file);
     const up=await supabase.storage.from('evidence').upload(path,file);
     if(up.error){$('uploadStatus').textContent=up.error.message;return;}
@@ -879,13 +921,14 @@ async function uploadProcess(){
       course:$('course').value,
       project,
       reflection,
+      stage,
       file_path:path,
       file_name:file.name,
       mime_type:file.type||'application/octet-stream'
     });
     if(row.error){$('uploadStatus').textContent=row.error.message;return;}
   }
-  $('uploadStatus').textContent=`Proyecto guardado con ${files.length} evidencia${files.length===1?'':'s'}.`;
+  $('uploadStatus').textContent=`Proyecto guardado con ${stagedFiles.length} evidencia${stagedFiles.length===1?'':'s'}.`;
   await loadData();
   setView('archive');
 }
