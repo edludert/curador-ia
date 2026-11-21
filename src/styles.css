@@ -319,3 +319,29 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
     top:18px!important;
   }
 }
+
+#sideMenu{
+  display:flex!important;
+  flex-direction:column;
+}
+#sideMenu nav{flex:0 0 auto}
+#sideMenu .logout{margin-top:18px}
+.drawer-brand{
+  margin-top:auto;
+  padding-top:28px;
+  padding-bottom:6px;
+  width:100%;
+}
+.drawer-brand img{
+  display:block;
+  width:210px;
+  max-width:78%;
+  height:auto;
+  opacity:1;
+}
+@media(max-width:760px){
+  .drawer-brand img{
+    width:190px;
+    max-width:76%;
+  }
+}
