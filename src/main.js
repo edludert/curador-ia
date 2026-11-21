@@ -386,17 +386,14 @@ function uploadView(){
         <div class="field"><label>Semestre</label><select id="semester"></select></div>
         <div class="field"><label>Materia</label><select id="course"></select></div>
         <div class="field"><label>Nombre del proyecto</label><input id="projectName" placeholder="Nombre del proyecto"></div>
-        <div class="field"><label>Brief / reto</label><textarea id="brief" placeholder="¿Cuál era el reto o punto de partida del proyecto?"></textarea></div>
-        <div class="notice">Cada proyecto queda ligado a una materia y semestre para construir la trazabilidad completa de la trayectoria.</div>
+
       </div>
 
-      <div class="card process-map-card">
-        <div class="k">PROCESO HUMANO</div>
-        <h2>Tres momentos del proyecto</h2>
-        <div class="process-steps">
-          <div><b>01 · Investigación</b><span>Comprender, observar, mapear.</span></div>
-          <div><b>02 · Conceptualización</b><span>Imaginar, relacionar, proponer.</span></div>
-          <div><b>03 · Prototipado</b><span>Construir, probar, materializar.</span></div>
+      <div class="card">
+        <div class="k">BRIEF / RETO</div>
+        <h2>¿Cuál era el punto de partida?</h2>
+        <div class="field brief-field">
+          <textarea id="brief" placeholder="Describe el reto, pregunta, encargo o situación que dio origen al proyecto."></textarea>
         </div>
       </div>
     </div>
@@ -442,28 +439,17 @@ function uploadView(){
       </article>
     </div>
 
-    <div class="grid g2 upload-reflection-grid">
+    <div class="upload-reflection-grid">
       <div class="card">
-        <div class="field"><label>¿Cuál fue tu intención?</label><textarea id="intent" placeholder="¿Qué querías explorar, provocar o comprender?"></textarea></div>
-        <div class="field"><label>¿Qué decisión consideras verdaderamente tuya?</label><textarea id="decision" placeholder="Una decisión que reconoces como propia."></textarea></div>
-        <div class="field"><label>¿Qué salió mal, cambió o te hizo dudar?</label><textarea id="friction" placeholder="Errores, cambios, contradicciones o momentos de duda."></textarea></div>
-        <div class="field"><label>¿Dónde intervino IA?</label><textarea id="aiUse" placeholder="Si utilizaste IA, explica dónde intervino y qué decisiones siguieron siendo tuyas."></textarea></div>
+        <div class="k">REFLEXIÓN DEL PROCESO</div>
+        <div class="grid g2 reflection-fields">
+          <div class="field"><label>¿Cuál fue tu intención?</label><textarea id="intent" placeholder="¿Qué querías explorar, provocar o comprender?"></textarea></div>
+          <div class="field"><label>¿Qué decisión consideras verdaderamente tuya?</label><textarea id="decision" placeholder="Una decisión que reconoces como propia."></textarea></div>
+          <div class="field"><label>¿Qué salió mal, cambió o te hizo dudar?</label><textarea id="friction" placeholder="Errores, cambios, contradicciones o momentos de duda."></textarea></div>
+          <div class="field"><label>¿Dónde intervino IA?</label><textarea id="aiUse" placeholder="Si utilizaste IA, explica dónde intervino y qué decisiones siguieron siendo tuyas."></textarea></div>
+        </div>
       </div>
-
-      <div>
-        <div class="curator" id="curate">
-          <div class="k">CURADOR IA · BORRADOR</div>
-          <h2>Lo que parece importante conservar</h2>
-          <div id="curateDraft">
-            <p class="m">Cuando completes la entrada, CURADOR.IA señalará decisiones, fricciones y evidencias que podrían ser importantes para tu trayectoria.</p>
-          </div>
-          <button id="curateUploadBtn" type="button" class="btn">Curar esta entrada</button>
-        </div>
-        <div class="card upload-meta-card">
-          <div class="k">METADATA</div>
-          <div class="row"><span class="pill">investigación</span><span class="pill">conceptualización</span><span class="pill">prototipado</span></div>
-          <p class="m mini mono">autoría_humana: por documentar · uso_ia: por declarar · reflexión: requerida</p>
-        </div>
+      <div class="process-save-row">
         <button id="saveProcessBtn" class="btn save-process-btn">Guardar proyecto + proceso</button>
         <div id="uploadStatus" class="status"></div>
       </div>
@@ -823,7 +809,6 @@ function bindView(){
   if($('researchFiles')) $('researchFiles').onchange=()=>renderSelectedFiles('researchFiles','researchFileList');
   if($('conceptFiles')) $('conceptFiles').onchange=()=>renderSelectedFiles('conceptFiles','conceptFileList');
   if($('prototypeFiles')) $('prototypeFiles').onchange=()=>renderSelectedFiles('prototypeFiles','prototypeFileList');
-  if($('curateUploadBtn')) $('curateUploadBtn').onclick=curateProcessDraft;
   if($('saveProcessBtn')) $('saveProcessBtn').onclick=uploadProcess;
   if($('uploadBtn')) $('uploadBtn').onclick=uploadEvidence;
   document.querySelectorAll('.cap-chip').forEach(b=>b.onclick=()=>{selectedCapability=b.dataset.cap;renderView();});
