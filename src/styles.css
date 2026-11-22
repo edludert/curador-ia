@@ -523,3 +523,35 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
   height:auto;
   min-height:0;
 }
+
+/* Auth contrast: login vs registration */
+.auth-grid>section.card:first-child{
+  background:#fff !important;
+  color:#000 !important;
+  border-color:#fff !important;
+}
+.auth-grid>section.card:first-child .k,
+.auth-grid>section.card:first-child h2,
+.auth-grid>section.card:first-child label{
+  color:#000 !important;
+}
+.auth-grid>section.card:first-child input{
+  background:#f4f4f4 !important;
+  color:#000 !important;
+  border-color:#d8d8d8 !important;
+}
+.auth-grid>section.card:first-child input::placeholder{
+  color:#777 !important;
+}
+.auth-grid>section.card:first-child .btn{
+  background:#000 !important;
+  color:#fff !important;
+  border-color:#000 !important;
+}
+.auth-grid>section.card:first-child .btn:hover{
+  background:#1a1a1a !important;
+  border-color:#1a1a1a !important;
+}
+.auth-grid>section.card:first-child .status{
+  color:#555 !important;
+}
