@@ -208,7 +208,86 @@ function shellMarkup(){
   </div>`;
 }
 
+function teacherHomeView(){
+  const list=pilotTeacherMode ? demoStudents : students;
+  const rows=pilotTeacherMode ? demoStudentEvidence : evidence;
+  const activeIds=new Set(rows.map(e=>e.student_id).filter(Boolean));
+  const activeCount=list.filter(s=>activeIds.has(s.id)).length;
+  const noEvidenceCount=Math.max(0,list.length-activeCount);
+  const projectCount=new Set(rows.map(e=>[e.student_id,e.project].join('||')).filter(Boolean)).size;
+  const recent=rows.slice(0,5);
+
+  return `
+  <section class="view active teacher-home">
+    <div class="teacher-home-hero">
+      <div>
+        <div class="k">DOCENTE · ${esc(profile?.campus||'Campus sin asignar')}</div>
+        <div class="home-welcome">Bienvenido(a), ${esc(toTitleCaseName(profile?.name||'Profesor/a'))}</div>
+        <h1>Acompaña procesos, no sólo entregas.</h1>
+        <p class="intro">CURADOR.IA reúne la evidencia documentada por estudiantes de tu campus para ayudarte a observar trayectorias, detectar procesos que requieren atención y ofrecer feedback con mayor contexto.</p>
+      </div>
+      <div class="teacher-home-actions">
+        <button class="btn" data-go="students">Ver estudiantes</button>
+        <button class="btn ghost" data-go="review">Revisar procesos</button>
+        <button class="btn ghost" data-go="feedback">Dar feedback</button>
+      </div>
+    </div>
+
+    <div class="teacher-dashboard-metrics">
+      <div class="teacher-dashboard-metric"><b>${list.length}</b><span>Estudiantes</span></div>
+      <div class="teacher-dashboard-metric"><b>${activeCount}</b><span>Con proceso documentado</span></div>
+      <div class="teacher-dashboard-metric"><b>${noEvidenceCount}</b><span>Sin evidencia todavía</span></div>
+      <div class="teacher-dashboard-metric"><b>${rows.length}</b><span>Evidencias</span></div>
+    </div>
+
+    <div class="teacher-dashboard-grid">
+      <div class="teacher-card">
+        <div class="teacher-section-head">
+          <div><div class="k">SEGUIMIENTO</div><h2>Estudiantes del campus</h2></div>
+          <button class="btn ghost small" data-go="students">Ver todos</button>
+        </div>
+        <div class="teacher-home-students">
+          ${list.length ? list.slice(0,6).map(s=>{
+            const count=rows.filter(e=>e.student_id===s.id).length;
+            return `<div class="teacher-home-student">
+              <div>
+                <b>${esc(toTitleCaseName(s.name||'Estudiante'))}</b>
+                <small>Semestre ${esc(s.semester||'—')} · ${count} evidencia${count===1?'':'s'}</small>
+              </div>
+              <span class="teacher-status ${count?'active':'empty'}">${count?'Proceso activo':'Sin evidencia'}</span>
+            </div>`;
+          }).join('') : '<div class="empty-reflections"><p>Todavía no hay estudiantes registrados en este campus.</p></div>'}
+        </div>
+      </div>
+
+      <div class="teacher-card">
+        <div class="teacher-section-head">
+          <div><div class="k">ACTIVIDAD RECIENTE</div><h2>Últimas evidencias</h2></div>
+          <button class="btn ghost small" data-go="review">Revisar</button>
+        </div>
+        <div class="teacher-recent-list">
+          ${recent.length ? recent.map(e=>`
+            <div class="teacher-recent-row">
+              <div>
+                <b>${esc(e.project||e.file_name||'Evidencia')}</b>
+                <small>${esc(e.profiles?.name||'Estudiante')} · ${esc(e.course||'Sin materia')}</small>
+              </div>
+              ${e.stage?`<span class="pill">${esc(e.stage)}</span>`:''}
+            </div>`).join('') : '<div class="empty-reflections"><p>Aún no hay evidencia reciente para revisar.</p></div>'}
+        </div>
+      </div>
+    </div>
+
+    <div class="teacher-principle-card">
+      <div class="k">PRINCIPIO DE ACOMPAÑAMIENTO</div>
+      <h2>Observar → señalar evidencia → preguntar → devolver al estudiante.</h2>
+      <p>El feedback docente funciona como una señal externa. No define automáticamente el perfil ni las competencias del estudiante.</p>
+    </div>
+  </section>`;
+}
+
 function homeView(){
+  if(profile?.role==='teacher'||profile?.role==='admin') return teacherHomeView();
   const rows=allEvidence();
   const total=rows.length;
   const imageCount=rows.filter(e=>e.mime_type?.startsWith('image/')).length;
