@@ -29,7 +29,7 @@ const DEMO_IMAGES = [
   'https://raw.githubusercontent.com/edludert/curador-ia/main/04.jpg'
 ];
 
-const curriculum = {
+const curriculum2026 = {
   1:[['A1001B','Historia del arte, diseño y ciudad'],['A1007','Teoría del arte, diseño y ciudad'],['AR1010B','Fundamentos de diseño'],['AR1029','Dibujo y expresión gráfica'],['DL1024','Métodos creativos'],['EG1006','Optativa de matemáticas y ciencias'],['H1007S','Inducción al servicio social'],['STEC1101S','Semana tec optativa I']],
   2:[['A1002B','Programación creativa'],['A1003B','Experimentación digital'],['AR1030','Investigación para industrias creativas'],['AR1031','Análisis y visualización de datos'],['DL1025','Diseño con matemáticas y física'],['EG1007','Optativa humanidades/bellas artes'],['HI1034','Inglés académico'],['STEC1102S','Semana tec optativa II'],['STEC1103S','Semana tec optativa III'],['VA1002B','Exploración disciplinar']],
   3:[['DL1001B','Estudio diseño I'],['DL1002B','Geometría'],['DL1026','Materiales I'],['DL1027','Dibujo y representación'],['EG1008','Optativa'],['STEC1104S','Semana tec IV'],['STEC1105S','Semana tec V']],
@@ -39,6 +39,70 @@ const curriculum = {
   7:[['STEC1110S','Semana tec X'],['STEC1111S','Semana tec XI'],['VA3117','Tópicos I'],['VA3118','Tópicos II'],['VA3119','Tópicos III'],['VA3120','Tópicos IV'],['VA3121','Tópicos V'],['VA3122','Tópicos VI']],
   8:[['DL3023B','Estudio IV'],['OP3013B','Optativa multidisciplinar'],['STEC1112S','Semana tec XII'],['STEC3001S','Examen fin de carrera']]
 };
+
+const curriculum2019 = {
+  1:[
+    ['A1004','Cultura visual y sonora'],
+    ['AV1002B','Técnicas y discursos fotográficos'],
+    ['CO1001B','Metodologías de investigación de factores humanos'],
+    ['DL1022','Metodologías del pensamiento creativo'],
+    ['EG1001','Optativa de matemáticas y ciencias'],
+    ['EH1001B','Inmersión y experimentación creativa']
+  ],
+  2:[
+    ['AR1001B','Representación formal del espacio'],
+    ['AV1001B','Narrativa audiovisual'],
+    ['EG1002','Optativa de humanidades y bellas artes'],
+    ['EH1008','Imaginarios culturales de México'],
+    ['EH1009','Semiótica y narratologías contemporáneas'],
+    ['H1001B','Estructuras simbólicas en la imagen, la literatura y la música']
+  ],
+  3:[
+    ['DL2001B','Comunicación digital del producto'],
+    ['DL2002B','Configuración del objeto'],
+    ['DL2042','Representación visual'],
+    ['DL2043','Materia y expresión'],
+    ['EG1003','Optativa de ciencias sociales y del comportamiento'],
+    ['VA1001B','Tópico de exploración']
+  ],
+  4:[
+    ['DL2003B','Pensamiento y proceso creativo'],
+    ['DL2004B','Especificación de productos y servicios'],
+    ['DL2005B','Diseño e innovación'],
+    ['DL2044','Administración de proyectos de diseño'],
+    ['EG1004','Optativa de liderazgo, emprendimiento e innovación']
+  ],
+  5:[
+    ['DL3003B','Diseño de familia de productos'],
+    ['DL3004B','Modularidad y optimización'],
+    ['DL3005B','Experiencia extendida'],
+    ['DL3028','Diseño estratégico'],
+    ['DL3009B','Diseño y producción'],
+    ['DL3010B','Diseño interactivo'],
+    ['DL3011B','Desarrollo de proyecto de estrategia visual'],
+    ['DL3029','Comunicación visual y gráfica'],
+    ['DL3014B','Integración tecnológica'],
+    ['DL3015B','Tecnologías emergentes y transformación digital'],
+    ['DL3016B','Materiales inteligentes'],
+    ['DL3030','Filosofía del diseño y la tecnología'],
+    ['DL3031','Tecnología, diseño y sociedad'],
+    ['DL3032','Diseño prospectivo y tecnología']
+  ],
+  6:[
+    ['DL3006B','Forma, función, sentido y valor'],
+    ['DL3012B','Diseño de marca, experiencia e interfaz'],
+    ['DL3017B','Diseño de productos de base tecnológica y emprendimiento']
+  ],
+  7:[],
+  8:[
+    ['DL3002B','Proyecto integral de diseño'],
+    ['OP3001B','Optativa profesional multidisciplinaria']
+  ]
+};
+
+function activeCurriculum(){
+  return profile?.plan==='2019' ? curriculum2019 : curriculum2026;
+}
 
 const capabilities = [
   ['INVESTIGAR',['Investigación','Observación','Escucha y empatía','Problem framing']],
@@ -141,6 +205,13 @@ function authMarkup(){
                 <option value="8">8º semestre</option>
               </select>
             </div>
+          </div>
+          <div class="field"><label>Plan de estudios</label>
+            <select id="signupPlan">
+              <option value="">Selecciona plan</option>
+              <option value="2019">TEC21 · Plan 2019</option>
+              <option value="2026">TEC21 · Plan 2026</option>
+            </select>
           </div>
 
         </div>
@@ -456,7 +527,7 @@ function reflectionCards(){
 function uploadView(){
   return `
   <section class="view active">
-    <div class="k">DOCUMENTAR PROCESO</div>
+    <div class="k">DOCUMENTAR PROCESO · PLAN ${esc(profile?.plan||'2026')}</div>
     <h1>Documentar un proyecto</h1>
     <p class="lead">La unidad básica no es el archivo: es el proyecto + su proceso. Organiza la evidencia según el momento en que apareció.</p>
 
@@ -564,9 +635,9 @@ async function archiveView(){
 function coursesView(){
   return `
   <section class="view active">
-    <div class="k">TRAYECTORIA</div><h1>Línea del tiempo</h1>
+    <div class="k">TRAYECTORIA · PLAN ${esc(profile?.plan||'2026')}</div><h1>Línea del tiempo</h1>
     <p class="lead">La estructura académica funciona como índice del archivo. En esta prueba, el primer semestre aparece activo y el resto anticipa el recorrido.</p>
-    ${Object.entries(curriculum).map(([sem,items])=>`
+    ${Object.entries(activeCurriculum()).map(([sem,items])=>`
       <div class="semester-block">
         <div class="semester-number">0${sem}</div>
         <div class="course-list">
@@ -901,13 +972,13 @@ function setView(id){
 
 function populateSemesters(){
   if(!$('semester')) return;
-  $('semester').innerHTML=Object.keys(curriculum).map(s=>`<option value="${s}">Semestre ${s}</option>`).join('');
+  $('semester').innerHTML=Object.keys(activeCurriculum()).map(s=>`<option value="${s}">Semestre ${s}</option>`).join('');
   populateCourses();
 }
 function populateCourses(){
   if(!$('course')||!$('semester')) return;
   const s=$('semester').value||'1';
-  $('course').innerHTML=(curriculum[s]||[]).map(([code,name])=>`<option value="${code} · ${name}">${code} · ${name}</option>`).join('');
+  $('course').innerHTML=(activeCurriculum()[s]||[]).map(([code,name])=>`<option value="${code} · ${name}">${code} · ${name}</option>`).join('');
 }
 
 function bindView(){
@@ -1164,7 +1235,7 @@ async function loadData(){
     return;
   }
   if(profile?.role==='teacher'||profile?.role==='admin'){
-    let prq=supabase.from('profiles').select('id,name,role,campus,semester,matricula').eq('role','student').order('name',{ascending:true});
+    let prq=supabase.from('profiles').select('id,name,role,campus,semester,matricula,plan').eq('role','student').order('name',{ascending:true});
     if(profile?.role==='teacher' && profile?.campus) prq=prq.eq('campus',profile.campus);
     const pr=await prq;
     students=pr.data||[];
@@ -1273,10 +1344,11 @@ async function refresh(){
       const lastName=toTitleCaseName($('signupLastName')?.value||'');
       const matricula=$('signupMatricula')?.value.trim().toUpperCase()||'';
       const semester=$('signupSemester')?.value||'';
+      const plan=$('signupPlan')?.value||'';
       const campus=$('signupCampus')?.value||'';
       if(!firstName || !lastName){$('signupStatus').textContent='Escribe nombre y apellido.';return;}
       if(!campus){$('signupStatus').textContent='Selecciona un campus.';return;}
-      if(!isTeacher && (!matricula || !semester)){$('signupStatus').textContent='Para estudiantes, matrícula y semestre son obligatorios.';return;}
+      if(!isTeacher && (!matricula || !semester || !plan)){$('signupStatus').textContent='Para estudiantes, matrícula, semestre y plan de estudios son obligatorios.';return;}
       const fullName=[firstName,lastName].filter(Boolean).join(' ');
       const {error}=await supabase.auth.signUp({
         email,
@@ -1289,6 +1361,7 @@ async function refresh(){
             name:fullName,
             matricula:isTeacher?null:matricula,
             semester:isTeacher?null:Number(semester),
+            plan:isTeacher?null:plan,
             campus,
             role:isTeacher?'teacher':'student'
           }
