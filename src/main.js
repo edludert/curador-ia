@@ -157,7 +157,7 @@ function authMarkup(){
               <option value="Estado de México">Estado de México</option>
             </select>
           </div>
-        <div class="field"><label>Tipo de cuenta</label><input id="signupAccountType" value="Estudiante" disabled></div>\n        <div id="teacherPilotNote" class="teacher-pilot-note hidden">Correo docente autorizado · contraseña piloto: <b>${TEACHER_PILOT_PASSWORD}</b></div>
+        <div class="field"><label>Tipo de cuenta</label><input id="signupAccountType" value="Estudiante" disabled></div>\n        <div id="teacherPilotNote" class="teacher-pilot-note hidden">Correo docente autorizado.</div>
         <div class="field"><label>Email</label><input id="signupEmail" type="email"></div>
         <div class="field"><label>Contraseña</label><input id="signupPassword" type="password"></div>
         <button id="signupBtn" class="btn ghost">Crear cuenta</button>
@@ -1183,7 +1183,7 @@ async function refresh(){
       const isTeacher=TEACHER_PILOT_EMAILS.includes(email);
       if($('signupAccountType')) $('signupAccountType').value=isTeacher?'Profesor/a piloto':'Estudiante';
       if($('studentRegistrationFields')) $('studentRegistrationFields').classList.toggle('hidden',isTeacher);
-      if(isTeacher && $('signupPassword')) $('signupPassword').value=TEACHER_PILOT_PASSWORD;
+      if(isTeacher && $('signupPassword')) $('signupPassword').value='';
     };
     if($('signupEmail')) $('signupEmail').oninput=updateSignupMode;
     $('signupBtn').onclick=async()=>{
@@ -1198,7 +1198,6 @@ async function refresh(){
       if(!firstName || !lastName){$('signupStatus').textContent='Escribe nombre y apellido.';return;}
       if(!campus){$('signupStatus').textContent='Selecciona un campus.';return;}
       if(!isTeacher && (!matricula || !semester)){$('signupStatus').textContent='Para estudiantes, matrícula y semestre son obligatorios.';return;}
-      if(isTeacher && $('signupPassword')) $('signupPassword').value=TEACHER_PILOT_PASSWORD;
       const fullName=[firstName,lastName].filter(Boolean).join(' ');
       const {error}=await supabase.auth.signUp({
         email,
