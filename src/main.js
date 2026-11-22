@@ -173,7 +173,7 @@ function navItems(){
     ['dna','ADN'],['introspection','Introspección']
   ];
   const teacher = [
-    ['home','Inicio'],['students','Estudiantes'],['review','Revisar proceso'],['dna','Lectura ADN'],['feedback','Feedback']
+    ['home','Inicio'],['students','Estudiantes'],['review','Revisar proceso'],['feedback','Feedback']
   ];
   return (profile?.role==='teacher'||profile?.role==='admin') ? teacher : student;
 }
@@ -1221,7 +1221,7 @@ async function refresh(){
   }
   await loadProfile();
   await loadData();
-  if((profile?.role==='teacher'||profile?.role==='admin') && !['home','students','review','dna','feedback'].includes(currentView)) currentView='home';
+  if((profile?.role==='teacher'||profile?.role==='admin') && !['home','students','review','feedback'].includes(currentView)) currentView='home';
   if(profile?.role==='student' && ['students','review','feedback'].includes(currentView)) currentView='home';
   await renderAuthenticated();
 }
