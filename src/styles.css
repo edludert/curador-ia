@@ -516,3 +516,10 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 @media(max-width:560px){
  .teacher-dashboard-metrics{grid-template-columns:1fr}
 }
+
+.auth-grid{align-items:start}
+.auth-grid>section.card:first-child{
+  align-self:start;
+  height:auto;
+  min-height:0;
+}
