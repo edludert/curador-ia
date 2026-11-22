@@ -8,6 +8,10 @@ const LUCIA_DEMO_EMAIL='lucia@curador.ia';
 const LUCIA_DEMO_PASSWORD='LuciaPiloto2026!';
 let luciaDemoMode=false;
 
+const PLAN2026_DEMO_EMAIL='valeria2026@curador.ia';
+const PLAN2026_DEMO_PASSWORD='ValeriaPlan2026!';
+let plan2026DemoMode=false;
+
 const PILOT_TEACHER_EMAIL='profesor@curador.ia';
 const PILOT_TEACHER_PASSWORD='Curador2026!';
 const TEACHER_PILOT_PASSWORD='CuradorPiloto2026!';
@@ -128,6 +132,8 @@ const demoEvidence = [
   {id:'demo-10',semester:3,course:'DL1026 · Materiales I',project:'Aprender con la materia',reflection:'Estoy empezando a confiar más en lo que el material me obliga a cambiar. A veces el proyecto mejora cuando dejo de imponerle una forma.',file_name:'02.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[3]},
   {id:'demo-11',semester:3,course:'DL1027 · Dibujo y representación',project:'Representar para decidir',reflection:'Uso el dibujo para comparar posibilidades antes de comprometerme con una solución. Me sirve para pensar rápido y también para cuestionar lo que creía resuelto.',file_name:'03.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[0]}
 ];
+
+const demo2026Profile={id:'demo-valeria-2026',name:'Valeria Soto',role:'student',campus:'Monterrey',semester:3,plan:'2026'};
 
 const demoCareerReflections = [
   {question:'¿Qué ha cambiado en tu manera de diseñar desde que empezaste la carrera?',answer:'Antes pensaba que diseñar era llegar rápido a una buena forma. Ahora me interesa más entender qué decisiones me llevaron hasta ahí y qué aprendí durante el proceso.',theme:'TRAYECTORIA',date:'Ago 2026'},
@@ -499,7 +505,7 @@ function uniqueProjectReflections(rows=allEvidence()){
 
 function careerReflections(){
   if(window.sessionIntrospections) return window.sessionIntrospections;
-  return luciaDemoMode ? demoCareerReflections : [];
+  return (luciaDemoMode||plan2026DemoMode) ? demoCareerReflections : [];
 }
 
 function reflectionCards(){
@@ -1214,7 +1220,8 @@ async function sendFeedback(){
 }
 
 async function loadProfile(){
-  if(luciaDemoMode){profile={id:'demo-lucia',name:'Lucía Romo',role:'student'};return;}
+  if(luciaDemoMode){profile={id:'demo-lucia',name:'Lucía Romo',role:'student',plan:'2026'};return;}
+  if(plan2026DemoMode){profile={...demo2026Profile};return;}
   if(pilotTeacherMode){profile={id:'pilot-teacher',name:'Profesor Piloto',role:'teacher'};return;}
   const {data,error}=await supabase.from('profiles').select('*').eq('id',session.user.id).single();
   if(error) console.warn(error);
@@ -1224,6 +1231,12 @@ async function loadProfile(){
 async function loadData(){
   if(luciaDemoMode){
     evidence=demoEvidence.map(e=>({...e,student_id:'demo-lucia',profiles:{name:'Lucía Romo'}}));
+    feedback=[];
+    students=[];
+    return;
+  }
+  if(plan2026DemoMode){
+    evidence=demoEvidence.map((e,i)=>({...e,id:'v26-'+String(i+1).padStart(2,'0'),student_id:'demo-valeria-2026',profiles:{name:'Valeria Soto'}}));
     feedback=[];
     students=[];
     return;
@@ -1275,7 +1288,7 @@ async function renderAuthenticated(){
   if($('menuToggle')) $('menuToggle').onclick=openMenu;
   if($('menuClose')) $('menuClose').onclick=closeMenu;
   if($('menuOverlay')) $('menuOverlay').onclick=closeMenu;
-  $('logoutBtn').onclick=()=>{if(luciaDemoMode){luciaDemoMode=false;session=null;profile=null;refresh();}else if(pilotTeacherMode){pilotTeacherMode=false;session=null;profile=null;refresh();}else{supabase.auth.signOut();}};
+  $('logoutBtn').onclick=()=>{if(luciaDemoMode){luciaDemoMode=false;session=null;profile=null;refresh();}else if(plan2026DemoMode){plan2026DemoMode=false;session=null;profile=null;refresh();}else if(pilotTeacherMode){pilotTeacherMode=false;session=null;profile=null;refresh();}else{supabase.auth.signOut();}};
   document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{setView(b.dataset.view);closeMenu();});
   await renderView();
 }
@@ -1283,7 +1296,14 @@ async function renderAuthenticated(){
 async function refresh(){
   if(luciaDemoMode){
     session={user:{id:'demo-lucia',email:LUCIA_DEMO_EMAIL,user_metadata:{name:'Lucía Romo',role:'student'}}};
-    profile={id:'demo-lucia',name:'Lucía Romo',role:'student'};
+    profile={id:'demo-lucia',name:'Lucía Romo',role:'student',plan:'2026'};
+    await loadData();
+    await renderAuthenticated();
+    return;
+  }
+  if(plan2026DemoMode){
+    session={user:{id:'demo-valeria-2026',email:PLAN2026_DEMO_EMAIL,user_metadata:{name:'Valeria Soto',role:'student',plan:'2026'}}};
+    profile={...demo2026Profile};
     await loadData();
     await renderAuthenticated();
     return;
@@ -1298,7 +1318,7 @@ async function refresh(){
   const {data:{session:s}}=await supabase.auth.getSession();
   session=s;
   if(!session){
-    profile=null;evidence=[];feedback=[];students=[];luciaDemoMode=false;currentView='home';
+    profile=null;evidence=[];feedback=[];students=[];luciaDemoMode=false;plan2026DemoMode=false;currentView='home';
     app.innerHTML=authMarkup();
     const enterPilotTeacher=async()=>{
       pilotTeacherMode=true;
@@ -1313,8 +1333,17 @@ async function refresh(){
       const password=$('loginPassword').value.trim();
       if(email===LUCIA_DEMO_EMAIL.toLowerCase() && password===LUCIA_DEMO_PASSWORD){
         luciaDemoMode=true;
-        session={user:{id:'demo-lucia',email:LUCIA_DEMO_EMAIL,user_metadata:{name:'Lucía Romo',role:'student'}}};
-        profile={id:'demo-lucia',name:'Lucía Romo',role:'student'};
+        session={user:{id:'demo-lucia',email:LUCIA_DEMO_EMAIL,user_metadata:{name:'Lucía Romo',role:'student',plan:'2026'}}};
+        profile={id:'demo-lucia',name:'Lucía Romo',role:'student',plan:'2026'};
+        await loadData();
+        currentView='home';
+        await renderAuthenticated();
+        return;
+      }
+      if(email===PLAN2026_DEMO_EMAIL.toLowerCase() && password===PLAN2026_DEMO_PASSWORD){
+        plan2026DemoMode=true;
+        session={user:{id:'demo-valeria-2026',email:PLAN2026_DEMO_EMAIL,user_metadata:{name:'Valeria Soto',role:'student',plan:'2026'}}};
+        profile={...demo2026Profile};
         await loadData();
         currentView='home';
         await renderAuthenticated();
