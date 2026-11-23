@@ -527,17 +527,17 @@ function careerReflections(){
   return luciaDemoMode ? demoCareerReflections : [];
 }
 
-function reflectionCards(){
+function reflectionCardArray(){
   const rows=careerReflections();
   if(!rows.length){
-    return `
+    return [`
       <article class="media-card quote span6" data-kind="reflection">
         <div class="quote-inner">
           <span class="type">INTROSPECCIÓN</span>
           <p>“Todavía no hay reflexiones de trayectoria guardadas.”</p>
           <small>Guarda una reflexión desde Introspección para verla aquí.</small>
         </div>
-      </article>`;
+      </article>`];
   }
   return rows.map(r=>`
     <article class="media-card quote span6" data-kind="reflection">
@@ -546,7 +546,25 @@ function reflectionCards(){
         <p>“${esc(r.answer||'')}”</p>
         <small>${esc(r.question||'Reflexión de trayectoria')}</small>
       </div>
-    </article>`).join('');
+    </article>`);
+}
+
+function reflectionCards(){
+  return reflectionCardArray().join('');
+}
+
+function interleavedArchiveCards(evidenceCards,reflectionCards){
+  if(!reflectionCards.length) return evidenceCards.join('');
+  const output=[];
+  let r=0;
+  evidenceCards.forEach((card,i)=>{
+    output.push(card);
+    if((i+1)%2===0 && r<reflectionCards.length){
+      output.push(reflectionCards[r++]);
+    }
+  });
+  while(r<reflectionCards.length) output.push(reflectionCards[r++]);
+  return output.join('');
 }
 
 function uploadView(){
@@ -634,6 +652,7 @@ function uploadView(){
 
 async function archiveView(){
   const dynamicCards = await Promise.all(allEvidence().map(evidenceCard));
+  const mixedCards = interleavedArchiveCards(dynamicCards,reflectionCardArray());
   return `
   <section class="view active">
     <div class="k">BÓVEDA</div><h1>Proceso antes que resultado.</h1>
@@ -650,8 +669,7 @@ async function archiveView(){
 </div>
     </div>
         <div class="media-grid" id="mediaGrid">
-      ${dynamicCards.join('')}
-      ${reflectionCards()}
+      ${mixedCards}
       
     </div>
   </section>`;
