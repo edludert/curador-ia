@@ -689,3 +689,23 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 .dna-lines{
   opacity:.95;
 }
+
+/* Deep Creative DNA report download */
+.dna-report-download{
+  margin-top:18px;
+  padding:22px;
+  border:1px solid #242424;
+  border-radius:16px;
+  background:#070707;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px 24px;
+  align-items:center;
+}
+.dna-report-download h2{margin:4px 0 8px;max-width:720px}
+.dna-report-download .m{margin:0;max-width:780px}
+.dna-report-download .status{grid-column:1/-1;margin:0}
+@media(max-width:760px){
+  .dna-report-download{grid-template-columns:1fr}
+  .dna-report-download .btn{width:100%}
+}
