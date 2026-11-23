@@ -815,12 +815,29 @@ function capabilitiesView(){
   </section>`;
 }
 
+function shortDnaSignal(text){
+  const clean=String(text||'').replace(/\s+/g,' ').trim();
+  if(!clean) return '';
+  const words=clean.split(' ');
+  return words.length<=6 ? clean : words.slice(0,6).join(' ')+'…';
+}
+
 function dnaView(){
   const reading=latestReading;
-  const signals=(reading?.capabilities||[]).slice(0,8);
-  const fallbackSignals=['Trayectoria','Proceso','Decisiones','Autoría'];
-  const words=signals.length?signals:fallbackSignals;
-  const pos=[[9,17],[65,12],[13,65],[68,68],[42,8],[42,77],[5,42],[75,42]];
+  const rawSignals=(reading?.capabilities||[]).filter(Boolean).slice(0,8);
+  const fallbackSignals=['Observación','Proceso','Decisiones','Autoría'];
+  const signals=(rawSignals.length?rawSignals:fallbackSignals).map(shortDnaSignal);
+
+  const nodes=[
+    {x:18,y:22,delay:'0s'},
+    {x:78,y:20,delay:'-1.4s'},
+    {x:14,y:70,delay:'-2.6s'},
+    {x:82,y:72,delay:'-3.8s'},
+    {x:49,y:10,delay:'-5s'},
+    {x:50,y:84,delay:'-6.2s'},
+    {x:7,y:46,delay:'-7.4s'},
+    {x:91,y:47,delay:'-8.6s'}
+  ];
 
   return `
   <section class="view active">
@@ -832,24 +849,37 @@ function dnaView(){
       ${reading?'<span class="pill">'+(reading.simulation?'lectura simulada':'lectura con IA')+'</span>':''}
     </div>
 
-    <div class="dna-layout">
-      <div class="dna-board">
-        <div class="dna-core"><div><b>${esc(profile?.name||'Tu ADN')}</b><span>${reading?'lectura viva':'por construir'}</span></div></div>
-        ${words.map((w,i)=>`<button class="dna-word" style="left:${pos[i][0]}%;top:${pos[i][1]}%">${esc(w)}</button>`).join('')}
+    <div class="dna-constellation">
+      <svg class="dna-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        ${signals.map((_,i)=>`<line x1="50" y1="50" x2="${nodes[i].x}" y2="${nodes[i].y}" />`).join('')}
+      </svg>
+
+      <div class="dna-core constellation-core">
+        <div>
+          <b>${esc(profile?.name||'Tu ADN')}</b>
+          <span>${reading?'lectura viva':'por construir'}</span>
+        </div>
       </div>
 
-      <div class="dna-panel">
-        <div class="k">LECTURA PROVISIONAL</div>
-        ${reading ? `
-          <div class="big">${esc(reading.hypothesis||'Lectura en construcción')}</div>
-          <div class="row">${(reading.capabilities||[]).map(c=>`<span class="pill dark">${esc(c)}</span>`).join('')}</div>
-          ${reading.note?`<p class="mini">${esc(reading.note)}</p>`:''}
-        ` : `
-          <div class="big">Tu ADN todavía no ha sido leído.</div>
-          <p class="m">Genera una lectura para cruzar tu trayectoria documentada, proyectos y reflexiones.</p>
-        `}
-        <div class="notice">Esta lectura es revisable. Cambia conforme crece tu archivo y requiere validación del estudiante.</div>
-      </div>
+      ${signals.map((signal,i)=>`
+        <button class="dna-star" style="--x:${nodes[i].x}%;--y:${nodes[i].y}%;--delay:${nodes[i].delay}" title="${esc(rawSignals[i]||signal)}">
+          <span class="dna-star-dot"></span>
+          <span class="dna-star-label">${esc(signal)}</span>
+        </button>
+      `).join('')}
+    </div>
+
+    <div class="dna-panel dna-reading-clean">
+      <div class="k">LECTURA PROVISIONAL</div>
+      ${reading ? `
+        <div class="big">${esc(reading.hypothesis||'Lectura en construcción')}</div>
+        <div class="row">${signals.map(c=>`<span class="pill dark">${esc(c)}</span>`).join('')}</div>
+        ${reading.note?`<p class="mini">${esc(reading.note)}</p>`:''}
+      ` : `
+        <div class="big">Tu ADN todavía no ha sido leído.</div>
+        <p class="m">Genera una lectura para cruzar tu trayectoria documentada, proyectos y reflexiones.</p>
+      `}
+      <div class="notice">Esta lectura es revisable. Cambia conforme crece tu archivo.</div>
     </div>
   </section>`;
 }
