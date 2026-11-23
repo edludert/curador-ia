@@ -824,19 +824,30 @@ function shortDnaSignal(text){
 
 function dnaView(){
   const reading=latestReading;
-  const rawSignals=(reading?.capabilities||[]).filter(Boolean).slice(0,8);
-  const fallbackSignals=['Observación','Proceso','Decisiones','Autoría'];
-  const signals=(rawSignals.length?rawSignals:fallbackSignals).map(shortDnaSignal);
+  const rawSignals=(reading?.capabilities||[]).filter(Boolean).slice(0,10);
+  const fallbackPool=['Observación','Proceso','Decisiones','Autoría','Síntesis','Experimentación','Pensamiento sistémico','Visualización','Criterio','Reflexión'];
+  const evidenceCount=allEvidence().length;
+  const reflectionCount=careerReflections().length;
+  const maturity=Math.min(10, Math.max(4, 4 + Math.floor((evidenceCount+reflectionCount)/3)));
+  const sourceSignals=rawSignals.length ? rawSignals : fallbackPool;
+  const expanded=[...sourceSignals];
+  for(const item of fallbackPool){
+    if(expanded.length>=maturity) break;
+    if(!expanded.includes(item)) expanded.push(item);
+  }
+  const signals=expanded.slice(0,maturity).map(shortDnaSignal);
 
   const nodes=[
-    {x:18,y:22,delay:'0s'},
-    {x:78,y:20,delay:'-1.4s'},
-    {x:14,y:70,delay:'-2.6s'},
-    {x:82,y:72,delay:'-3.8s'},
-    {x:49,y:10,delay:'-5s'},
-    {x:50,y:84,delay:'-6.2s'},
-    {x:7,y:46,delay:'-7.4s'},
-    {x:91,y:47,delay:'-8.6s'}
+    {x:17,y:20,delay:'0s'},
+    {x:82,y:18,delay:'-1.2s'},
+    {x:12,y:72,delay:'-2.4s'},
+    {x:86,y:74,delay:'-3.6s'},
+    {x:48,y:9,delay:'-4.8s'},
+    {x:50,y:88,delay:'-6s'},
+    {x:6,y:45,delay:'-7.2s'},
+    {x:94,y:47,delay:'-8.4s'},
+    {x:28,y:86,delay:'-9.6s'},
+    {x:72,y:88,delay:'-10.8s'}
   ];
 
   return `
