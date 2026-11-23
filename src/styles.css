@@ -555,3 +555,5 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 .auth-grid>section.card:first-child .status{
   color:#555 !important;
 }
+
+.dna-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0}
