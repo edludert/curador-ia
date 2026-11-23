@@ -190,6 +190,7 @@ let latestReading = null;
 let selectedCapability = 'Experimentación';
 let selectedCourse = null;
 let openUploadOnArchive = false;
+let deletedDemoEvidenceIds = new Set();
 const allEvidence = () => [...evidence];
 
 const $ = id => document.getElementById(id);
@@ -1132,6 +1133,20 @@ function bindView(){
     const path=b.dataset.filePath;
     if(!confirm('¿Eliminar esta evidencia? Esta acción no se puede deshacer.')) return;
     b.disabled=true;
+
+    const isDemoEvidence =
+      luciaDemoMode ||
+      plan2026DemoMode ||
+      String(id||'').startsWith('demo-') ||
+      String(id||'').startsWith('v26-');
+
+    if(isDemoEvidence){
+      deletedDemoEvidenceIds.add(id);
+      evidence=evidence.filter(row=>row.id!==id);
+      await renderView();
+      return;
+    }
+
     const {error:dbError}=await supabase.from('evidence').delete().eq('id',id).eq('student_id',session.user.id);
     if(dbError){alert(dbError.message);b.disabled=false;return;}
     if(path) await supabase.storage.from('evidence').remove([path]);
@@ -1368,13 +1383,13 @@ async function loadProfile(){
 
 async function loadData(){
   if(luciaDemoMode){
-    evidence=demoEvidence.map(e=>({...e,student_id:'demo-lucia',profiles:{name:'Lucía Romo'}}));
+    evidence=demoEvidence.filter(e=>!deletedDemoEvidenceIds.has(e.id)).map(e=>({...e,student_id:'demo-lucia',profiles:{name:'Lucía Romo'}}));
     feedback=[];
     students=[];
     return;
   }
   if(plan2026DemoMode){
-    evidence=demo2026Evidence.map(e=>({...e,student_id:'demo-valeria-2026',profiles:{name:'Valeria Soto'}}));
+    evidence=demo2026Evidence.filter(e=>!deletedDemoEvidenceIds.has(e.id)).map(e=>({...e,student_id:'demo-valeria-2026',profiles:{name:'Valeria Soto'}}));
     feedback=[];
     students=[];
     return;
