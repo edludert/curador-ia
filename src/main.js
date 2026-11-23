@@ -172,7 +172,7 @@ let latestReading = null;
 let selectedCapability = 'Experimentación';
 let selectedCourse = null;
 let openUploadOnArchive = false;
-const allEvidence = () => [...evidence, ...demoEvidence.filter(d=>!evidence.some(e=>e.id===d.id))];
+const allEvidence = () => [...evidence];
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -797,20 +797,83 @@ function capabilitiesView(){
 }
 
 function dnaView(){
-  const words=['Observa antes de cerrar','Piensa dibujando','Itera con materiales','Cuestiona supuestos','Hace visible el proceso','Conecta escalas','Aprende del error','Cuida la autoría'];
+  const reading=latestReading;
+  const signals=(reading?.capabilities||[]).slice(0,8);
+  const fallbackSignals=['Trayectoria','Proceso','Decisiones','Autoría'];
+  const words=signals.length?signals:fallbackSignals;
   const pos=[[9,17],[65,12],[13,65],[68,68],[42,8],[42,77],[5,42],[75,42]];
+
   return `
   <section class="view active">
     <div class="k">ADN CREATIVO</div><h1>Hipótesis, no sentencia.</h1>
-    <p class="lead">El ADN se construye con patrones que reaparecen en el tiempo. La IA propone relaciones; la persona conserva la última palabra.</p>
+    <p class="lead">El ADN se construye con patrones que reaparecen en el tiempo. CURADOR.IA cruza evidencias y reflexiones; tú decides si la lectura te representa.</p>
+
+    <div class="dna-actions">
+      <button class="btn" id="refreshDna">${reading?'Actualizar ADN creativo':'Generar ADN creativo'}</button>
+      ${reading?'<span class="pill">'+(reading.simulation?'lectura simulada':'lectura con IA')+'</span>':''}
+    </div>
+
     <div class="dna-layout">
       <div class="dna-board">
-        <div class="dna-core"><div><b>${esc(profile?.name||'Tu ADN')}</b><span>lectura viva</span></div></div>
-        ${words.map((w,i)=>`<button class="dna-word" style="left:${pos[i][0]}%;top:${pos[i][1]}%">${w}</button>`).join('')}
+        <div class="dna-core"><div><b>${esc(profile?.name||'Tu ADN')}</b><span>${reading?'lectura viva':'por construir'}</span></div></div>
+        ${words.map((w,i)=>`<button class="dna-word" style="left:${pos[i][0]}%;top:${pos[i][1]}%">${esc(w)}</button>`).join('')}
       </div>
-      <div class="dna-panel"><div class="k">LECTURA PROVISIONAL</div><div class="big">Explorar → contrastar → decidir</div><p class="m">Aparece una posible preferencia por comprender a través de hacer visible el proceso, probar y volver sobre decisiones anteriores.</p><div class="notice">Esta lectura es revisable. Necesita evidencia acumulada y validación del estudiante.</div></div>
+
+      <div class="dna-panel">
+        <div class="k">LECTURA PROVISIONAL</div>
+        ${reading ? `
+          <div class="big">${esc(reading.hypothesis||'Lectura en construcción')}</div>
+          <p class="m"><b>Pregunta para validar:</b> ${esc(reading.question||'¿Esta lectura te representa?')}</p>
+          <div class="row">${(reading.capabilities||[]).map(c=>`<span class="pill dark">${esc(c)}</span>`).join('')}</div>
+          ${reading.note?`<p class="mini">${esc(reading.note)}</p>`:''}
+        ` : `
+          <div class="big">Tu ADN todavía no ha sido leído.</div>
+          <p class="m">Genera una lectura para cruzar tu trayectoria documentada, proyectos y reflexiones.</p>
+        `}
+        <div class="notice">Esta lectura es revisable. Cambia conforme crece tu archivo y requiere validación del estudiante.</div>
+      </div>
     </div>
   </section>`;
+}
+
+async function generateDnaReading(){
+  const rows=allEvidence();
+  const refs=careerReflections();
+  if(!rows.length && !refs.length){
+    alert('Primero documenta un proyecto o guarda una reflexión.');
+    return;
+  }
+
+  const button=$('refreshDna');
+  if(button){button.disabled=true;button.textContent='Leyendo trayectoria…';}
+
+  const projects=[...new Map(rows.filter(e=>e.project).map(e=>[e.project,e])).values()];
+  const processNotes=uniqueProjectReflections(rows).slice(0,8).map(e=>e.reflection).filter(Boolean);
+  const careerNotes=refs.slice(0,8).map(r=>`${r.question}: ${r.answer}`);
+  const reflection=[
+    ...projects.slice(0,8).map(e=>`Proyecto: ${e.project} · Materia: ${e.course||'—'} · Etapa: ${e.stage||'—'}`),
+    ...processNotes,
+    ...careerNotes
+  ].join('\n\n').slice(0,12000);
+
+  try{
+    const r=await fetch('/api/curate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        project:'Trayectoria acumulada',
+        course:'Múltiples materias y proyectos',
+        reflection
+      })
+    });
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.error||'No se pudo generar la lectura.');
+    latestReading=data;
+    await renderView();
+  }catch(e){
+    alert(e.message||'No se pudo actualizar el ADN creativo.');
+    if(button){button.disabled=false;button.textContent='Actualizar ADN creativo';}
+  }
 }
 
 function introspectionView(){
@@ -1002,6 +1065,7 @@ function bindView(){
     await renderView();
   });
   if($('homeAddEvidence')) $('homeAddEvidence').onclick=()=>setView('upload');
+  if($('refreshDna')) $('refreshDna').onclick=generateDnaReading;
   document.querySelectorAll('.course-link[data-course]').forEach(btn=>btn.onclick=()=>{
     selectedCourse={code:btn.dataset.course,name:btn.dataset.courseName,semester:btn.dataset.sem};
     setView('courseDetail');
