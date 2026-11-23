@@ -680,3 +680,12 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
   0%,100%{transform:scale(1)}
   50%{transform:scale(1.008)}
 }
+
+/* Stronger constellation network */
+.dna-lines line{
+  stroke:rgba(255,255,255,.52)!important;
+  stroke-width:.34!important;
+}
+.dna-lines{
+  opacity:.95;
+}
