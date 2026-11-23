@@ -1405,6 +1405,7 @@ function addPdfSectionTitle(doc,title,y){
     doc.addPage();
     y=22;
   }
+  doc.setTextColor(0,0,0);
   doc.setFont('helvetica','bold');
   doc.setFontSize(15);
   doc.text(safePdfText(title),18,y);
@@ -1414,6 +1415,7 @@ function addPdfSectionTitle(doc,title,y){
 }
 
 function addPdfBullets(doc,items,y){
+  doc.setTextColor(0,0,0);
   for(const item of (items||[])){
     if(y>274){
       doc.addPage();
@@ -1456,6 +1458,7 @@ function downloadCreativeProfilePdf(report){
   doc.setTextColor(255,255,255);
 
   doc.addPage();
+  doc.setTextColor(0,0,0);
   y=24;
 
   y=addPdfSectionTitle(doc,'Patrones recurrentes',y);
