@@ -88,10 +88,41 @@ export default async function handler(req,res){
     }
 
     try{
-      const text=json.output?.[0]?.content?.find(x=>x.type==='output_text')?.text;
-      return res.status(200).json({...JSON.parse(text),simulation:false});
+      const outputText = (json.output||[])
+        .flatMap(item=>Array.isArray(item.content)?item.content:[])
+        .find(part=>part.type==='output_text' && typeof part.text==='string')?.text;
+
+      const refusal = (json.output||[])
+        .flatMap(item=>Array.isArray(item.content)?item.content:[])
+        .find(part=>part.type==='refusal');
+
+      if(refusal){
+        return res.status(200).json({
+          ...simulateCurator(body),
+          note:'La IA no pudo generar esta lectura; se muestra una lectura simulada.'
+        });
+      }
+
+      if(!outputText){
+        console.error('CURATOR_NO_OUTPUT_TEXT',{
+          status:json.status,
+          incomplete_details:json.incomplete_details,
+          output_types:(json.output||[]).map(x=>x.type)
+        });
+        return res.status(200).json({
+          ...simulateCurator(body),
+          note:'La respuesta de IA llegó incompleta; se muestra una lectura simulada.'
+        });
+      }
+
+      const parsed=JSON.parse(outputText);
+      return res.status(200).json({...parsed,simulation:false});
     }catch(e){
-      return res.status(500).json({error:'No se pudo interpretar la respuesta de IA'});
+      console.error('CURATOR_PARSE_ERROR',e?.message);
+      return res.status(200).json({
+        ...simulateCurator(body),
+        note:'La respuesta de IA no pudo interpretarse; se muestra una lectura simulada.'
+      });
     }
   }catch(e){
     return res.status(200).json(simulateCurator(body));
