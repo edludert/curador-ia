@@ -133,6 +133,24 @@ const demoEvidence = [
   {id:'demo-11',semester:3,course:'DL1027 · Dibujo y representación',project:'Representar para decidir',reflection:'Uso el dibujo para comparar posibilidades antes de comprometerme con una solución. Me sirve para pensar rápido y también para cuestionar lo que creía resuelto.',file_name:'03.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[0]}
 ];
 
+const demo2026Evidence = [
+  {id:'v26-01',semester:1,course:'AR1030 · Investigación para industrias creativas',stage:'Investigación',project:'Rastros de espera en espacios cotidianos',reflection:'Quería entender cómo un espacio aparentemente simple puede afectar el ánimo, la atención y la percepción del tiempo. Decidí registrar no sólo lo que la gente hacía, sino también cómo ocupaba el espacio, qué evitaba tocar, dónde se detenía y qué expresiones corporales repetía. Al inicio estaba observando de forma muy superficial; después entendí que necesitaba organizar la información en patrones y no sólo juntar datos sueltos. Usé IA para ayudarme a agrupar observaciones en categorías iniciales, pero la interpretación final y la síntesis visual fueron mías.',file_name:'rastros-espera.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[0]},
+  {id:'v26-02',semester:1,course:'AR1010B · Fundamentos de diseño',stage:'Conceptualización',project:'Objeto ritual para iniciar el día',reflection:'Quería explorar cómo un objeto puede generar una experiencia emocional y no sólo cumplir una función práctica. Elegí trabajar con la idea de pausa y respiración antes de iniciar actividades, en lugar de diseñar algo puramente utilitario. Mis primeras ideas eran demasiado obvias y formales; después me enfoqué más en la sensación que quería provocar que en la forma final del objeto. No utilicé IA en esta fase.',file_name:'objeto-ritual.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[1]},
+  {id:'v26-03',semester:1,course:'DL1024 · Métodos creativos',stage:'Conceptualización',project:'Narrar una experiencia a través de secuencia visual',reflection:'Quería experimentar con la secuencia, el ritmo y la atmósfera para comunicar sensaciones más que explicar de forma literal. Decidí usar contrastes entre imágenes muy cerradas y muy abiertas para generar tensión y luego descanso visual. Me di cuenta de que estaba explicando demasiado y tuve que quitar elementos para confiar más en la fuerza de la secuencia. Usé IA para explorar algunas posibilidades de composición, pero la edición y selección final fueron mías.',file_name:'secuencia-visual.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[2]},
+  {id:'v26-04',semester:2,course:'AR1031 · Análisis y visualización de datos',stage:'Investigación',project:'Mapa de relaciones del consumo de agua en vivienda estudiantil',reflection:'Quería dejar de ver el problema sólo como gastar mucha agua y entender relaciones, causas, hábitos, infraestructura y cultura. Elegí trabajar con vivienda estudiantil porque era un contexto cercano. Al principio hice un mapa muy lineal; después entendí que necesitaba visibilizar retroalimentaciones, actores invisibles y consecuencias indirectas. Usé IA para probar formas de organizar visualmente el sistema, pero el diagrama final surgió de mis observaciones y decisiones.',file_name:'mapa-agua.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[3]},
+  {id:'v26-05',semester:2,course:'AR1030 · Investigación para industrias creativas',stage:'Conceptualización',project:'Objeto de memoria para una práctica familiar',reflection:'Quería trabajar la memoria cotidiana y afectiva, no una idea decorativa de identidad. Tomé como punto de partida un gesto doméstico repetido en mi familia y lo convertí en detonador de forma y relato. Me costó no simplificar la cultura; tuve que regresar a relatos concretos y dejar de hablar en términos abstractos. Usé IA para explorar variantes visuales de presentación, pero no para definir el concepto central.',file_name:'memoria-familiar.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[0]},
+  {id:'v26-06',semester:2,course:'A1003B · Experimentación digital',stage:'Prototipado',project:'Sistema para reducir desechables en consumo para llevar',reflection:'Quería pasar de una crítica general al desperdicio a una propuesta concreta capaz de modificar comportamientos. En vez de diseñar un solo objeto, propuse un pequeño sistema de interacción entre usuario, comercio y recipiente. Mi primera idea dependía demasiado de que la gente quisiera cambiar; después entendí que la solución tenía que facilitar el cambio, no sólo pedirlo. Usé IA para simular escenarios de uso y visualizar variantes, pero la estructura del sistema y sus reglas fueron definidas por mí.',file_name:'sistema-desechables.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[1]},
+  {id:'v26-07',semester:3,course:'DL1027 · Dibujo y representación',stage:'Prototipado',project:'Kit visual para explicar un proceso complejo',reflection:'Quería hacer comprensible algo complejo sin simplificarlo en exceso. Opté por una estrategia de capas: visión general primero y luego despiece de componentes. Mis primeras pruebas eran demasiado cargadas, así que reduje ruido visual y jerarquicé mejor la información. Utilicé IA para iterar algunas visualizaciones, pero la jerarquía, edición y articulación final fueron mías.',file_name:'kit-visual.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[2]},
+  {id:'v26-08',semester:3,course:'DL1001B · Estudio diseño I',stage:'Investigación',project:'Bitácora visual de decisiones en proceso',reflection:'Quería hacer visible el proceso, no sólo el resultado, y entender qué patrones aparecían en mis maneras de investigar y decidir. Decidí documentar errores, dudas y cambios de dirección, no sólo los aciertos. Me costó mostrar partes inacabadas porque sentía que eran débiles, pero después entendí que ahí estaba una parte importante del aprendizaje. Usé IA como interlocutora para contrastar opciones y como apoyo de organización, pero no como autora de las decisiones centrales.',file_name:'bitacora-decisiones.jpg',mime_type:'image/jpeg',demo_image:DEMO_IMAGES[3]}
+];
+
+const demo2026CareerReflections = [
+  {question:'¿Qué decisión reciente te hizo reconocerte más claramente como diseñadora?',answer:'Me reconocí como diseñadora cuando dejé de buscar la idea correcta y empecé a confiar en mi proceso de observación. Entendí que diseñar para mí no es responder rápido, sino sostener una pregunta el tiempo suficiente para que aparezcan relaciones que no eran evidentes al inicio.',theme:'TRAYECTORIA',date:'Ago 2026'},
+  {question:'¿Qué haces tú que no puede resumirse solamente en el resultado final?',answer:'Creo que una parte importante de mi trabajo está en cómo organizo, conecto y traduzco información. Aunque el resultado pueda verse simple, detrás casi siempre hay un esfuerzo por encontrar patrones, hacer mapas y volver visible algo que al principio estaba disperso.',theme:'AUTORÍA',date:'Sep 2026'},
+  {question:'¿Dónde sientes tensión cuando trabajas con IA?',answer:'La IA me ayuda a abrir posibilidades y a iterar más rápido, pero también me hace preguntarme qué decisiones siguen siendo realmente mías. La tensión aparece cuando una imagen se ve resuelta demasiado pronto; en esos casos trato de regresar al proceso, a mis notas y a mis criterios para no perder autoría.',theme:'IA + AUTORÍA',date:'Oct 2026'},
+  {question:'¿Qué aprendizaje atraviesa varios de tus proyectos?',answer:'He notado que en varios proyectos aparece la necesidad de observar antes de proponer. Me interesa comprender relaciones entre personas, contexto y objetos, y después traducir eso en sistemas visuales, narrativos o materiales que hagan más legible una situación compleja.',theme:'RECURRENCIA',date:'Nov 2026'}
+];
+
 const demo2026Profile={id:'demo-valeria-2026',name:'Valeria Soto',role:'student',campus:'Monterrey',semester:3,plan:'2026'};
 
 const demoCareerReflections = [
@@ -505,7 +523,8 @@ function uniqueProjectReflections(rows=allEvidence()){
 
 function careerReflections(){
   if(window.sessionIntrospections) return window.sessionIntrospections;
-  return (luciaDemoMode||plan2026DemoMode) ? demoCareerReflections : [];
+  if(plan2026DemoMode) return demo2026CareerReflections;
+  return luciaDemoMode ? demoCareerReflections : [];
 }
 
 function reflectionCards(){
@@ -1300,7 +1319,7 @@ async function loadData(){
     return;
   }
   if(plan2026DemoMode){
-    evidence=demoEvidence.map((e,i)=>({...e,id:'v26-'+String(i+1).padStart(2,'0'),student_id:'demo-valeria-2026',profiles:{name:'Valeria Soto'}}));
+    evidence=demo2026Evidence.map(e=>({...e,student_id:'demo-valeria-2026',profiles:{name:'Valeria Soto'}}));
     feedback=[];
     students=[];
     return;
