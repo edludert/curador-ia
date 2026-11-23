@@ -842,7 +842,6 @@ function dnaView(){
         <div class="k">LECTURA PROVISIONAL</div>
         ${reading ? `
           <div class="big">${esc(reading.hypothesis||'Lectura en construcción')}</div>
-          <p class="m"><b>Pregunta para validar:</b> ${esc(reading.question||'¿Esta lectura te representa?')}</p>
           <div class="row">${(reading.capabilities||[]).map(c=>`<span class="pill dark">${esc(c)}</span>`).join('')}</div>
           ${reading.note?`<p class="mini">${esc(reading.note)}</p>`:''}
         ` : `
