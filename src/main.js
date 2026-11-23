@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { jsPDF } from 'jspdf';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://crsqlxzivmrocvtoonku.supabase.co';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_ZIof7M3OQ6gpz6dCYq2n4Q_PmJMLIjH';
@@ -908,6 +909,16 @@ function dnaView(){
         <p class="m">Genera una lectura para cruzar tu trayectoria documentada, proyectos y reflexiones.</p>
       `}
     </div>
+
+    <div class="dna-report-download">
+      <div>
+        <div class="k">DIAGNÓSTICO PROFUNDO</div>
+        <h2>Descarga una lectura extensa de tu perfil creativo.</h2>
+        <p class="m">Cruza tu trayectoria, decisiones, reflexiones, tensiones, competencias emergentes y relación con IA en un documento provisional de lectura personal.</p>
+      </div>
+      <button class="btn" id="downloadProfileReport">Descargar diagnóstico profundo</button>
+      <div id="profileReportStatus" class="status"></div>
+    </div>
   </section>`;
 }
 
@@ -1155,6 +1166,7 @@ function bindView(){
   });
   if($('homeAddEvidence')) $('homeAddEvidence').onclick=()=>setView('upload');
   if($('refreshDna')) $('refreshDna').onclick=generateDnaReading;
+  if($('downloadProfileReport')) $('downloadProfileReport').onclick=downloadDeepProfileReport;
   document.querySelectorAll('.course-link[data-course]').forEach(btn=>btn.onclick=()=>{
     selectedCourse={code:btn.dataset.course,name:btn.dataset.courseName,semester:btn.dataset.sem};
     setView('courseDetail');
@@ -1360,6 +1372,203 @@ async function analyzeLatest(){
   if(!r.ok){$('aiOutput').innerHTML=`<p>${esc(data.error||'No se pudo generar la lectura.')}</p>`;return;}
   latestReading=data;
   $('aiOutput').innerHTML=readingMarkup(data);
+}
+
+function safePdfText(value){
+  return String(value??'')
+    .replace(/[“”]/g,'"')
+    .replace(/[‘’]/g,"'")
+    .replace(/→/g,'->')
+    .replace(/—/g,'-')
+    .replace(/…/g,'...');
+}
+
+function addPdfParagraph(doc,text,x,y,width,opts={}){
+  const fontSize=opts.fontSize||10.5;
+  const lineHeight=opts.lineHeight||5.6;
+  doc.setFont('helvetica',opts.bold?'bold':'normal');
+  doc.setFontSize(fontSize);
+  const lines=doc.splitTextToSize(safePdfText(text),width);
+  for(const line of lines){
+    if(y>276){
+      doc.addPage();
+      y=22;
+    }
+    doc.text(line,x,y);
+    y+=lineHeight;
+  }
+  return y;
+}
+
+function addPdfSectionTitle(doc,title,y){
+  if(y>260){
+    doc.addPage();
+    y=22;
+  }
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(15);
+  doc.text(safePdfText(title),18,y);
+  doc.setDrawColor(40);
+  doc.line(18,y+3,192,y+3);
+  return y+11;
+}
+
+function addPdfBullets(doc,items,y){
+  for(const item of (items||[])){
+    if(y>274){
+      doc.addPage();
+      y=22;
+    }
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10.5);
+    doc.text('•',20,y);
+    y=addPdfParagraph(doc,item,26,y,164,{fontSize:10.5,lineHeight:5.6});
+    y+=2;
+  }
+  return y;
+}
+
+function downloadCreativeProfilePdf(report){
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const name=profile?.name||'Estudiante';
+  const date=new Date().toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'});
+
+  doc.setFillColor(5,5,5);
+  doc.rect(0,0,210,297,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(25);
+  doc.text('CURADOR.IA',18,28);
+  doc.setFontSize(18);
+  doc.text('Diagnóstico profundo de perfil creativo',18,42);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(11);
+  doc.setTextColor(185,185,185);
+  doc.text(safePdfText(name),18,56);
+  doc.text(safePdfText(`Plan ${profile?.plan||'—'} · Semestre ${profile?.semester||'—'} · ${profile?.campus||'Campus no indicado'}`),18,64);
+  doc.text(safePdfText(date),18,72);
+  doc.setTextColor(255,255,255);
+  let y=92;
+  y=addPdfParagraph(doc,report.synthesis,18,y,174,{fontSize:13,lineHeight:7});
+  doc.setFontSize(8.5);
+  doc.setTextColor(150,150,150);
+  y=addPdfParagraph(doc,report.source_summary||'',18,y+8,174,{fontSize:8.5,lineHeight:4.7});
+  doc.setTextColor(255,255,255);
+
+  doc.addPage();
+  y=24;
+
+  y=addPdfSectionTitle(doc,'Patrones recurrentes',y);
+  for(const pattern of (report.patterns||[])){
+    if(y>250){doc.addPage();y=22;}
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(11.5);
+    doc.text(safePdfText(pattern.name),20,y);
+    y+=7;
+    y=addPdfParagraph(doc,pattern.description,20,y,170,{fontSize:10.5,lineHeight:5.6});
+    doc.setTextColor(120,120,120);
+    y=addPdfParagraph(doc,'Evidencia: '+pattern.evidence,20,y+1,170,{fontSize:8.8,lineHeight:4.8});
+    doc.setTextColor(0,0,0);
+    y+=7;
+  }
+
+  y=addPdfSectionTitle(doc,'Fortalezas emergentes',y);
+  y=addPdfBullets(doc,report.strengths,y);
+
+  y=addPdfSectionTitle(doc,'Tensiones productivas',y);
+  y=addPdfBullets(doc,report.tensions,y);
+
+  y=addPdfSectionTitle(doc,'Cómo toma decisiones',y);
+  y=addPdfParagraph(doc,report.decision_style,20,y,170);
+
+  y=addPdfSectionTitle(doc,'Cómo parece aprender mejor',y);
+  y=addPdfParagraph(doc,report.learning_style,20,y,170);
+
+  y=addPdfSectionTitle(doc,'Autoría y relación con IA',y);
+  y=addPdfParagraph(doc,report.authorship_ai,20,y,170);
+
+  y=addPdfSectionTitle(doc,'Competencias emergentes',y);
+  y=addPdfBullets(doc,report.emerging_competencies,y);
+
+  y=addPdfSectionTitle(doc,'Proyección de trayectoria',y);
+  y=addPdfParagraph(doc,report.trajectory_projection,20,y,170);
+
+  y=addPdfSectionTitle(doc,'Preguntas que conviene mantener abiertas',y);
+  y=addPdfBullets(doc,report.open_questions,y);
+
+  if(y>245){doc.addPage();y=22;}
+  doc.setDrawColor(180);
+  doc.line(18,y+4,192,y+4);
+  doc.setTextColor(90,90,90);
+  y=addPdfParagraph(doc,report.disclaimer,18,y+12,174,{fontSize:8.8,lineHeight:4.8});
+
+  const pages=doc.getNumberOfPages();
+  for(let i=2;i<=pages;i++){
+    doc.setPage(i);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(130,130,130);
+    doc.text(`CURADOR.IA · ${safePdfText(name)}`,18,289);
+    doc.text(`${i}/${pages}`,188,289,{align:'right'});
+  }
+
+  const filename='diagnostico-creativo-'+safePdfText(name).toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi,'-').replace(/^-|-$/g,'')+'.pdf';
+  doc.save(filename);
+}
+
+async function downloadDeepProfileReport(){
+  const status=$('profileReportStatus');
+  const button=$('downloadProfileReport');
+  const rows=allEvidence();
+  const refs=careerReflections();
+
+  if(!rows.length && !refs.length){
+    if(status) status.textContent='Primero documenta evidencia o guarda reflexiones.';
+    return;
+  }
+
+  if(button){button.disabled=true;button.textContent='Generando diagnóstico…';}
+  if(status) status.textContent='Analizando la trayectoria completa…';
+
+  try{
+    const payload={
+      profile:{
+        name:profile?.name||'',
+        plan:profile?.plan||'',
+        semester:profile?.semester||'',
+        campus:profile?.campus||''
+      },
+      evidence:rows.map(e=>({
+        semester:e.semester||'',
+        course:e.course||'',
+        project:e.project||e.file_name||'',
+        stage:e.stage||'',
+        reflection:e.reflection||''
+      })),
+      reflections:refs.map(r=>({
+        question:r.question||'',
+        answer:r.answer||'',
+        theme:r.theme||''
+      }))
+    };
+
+    const r=await fetch('/api/profile-report',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.error||'No se pudo generar el diagnóstico.');
+
+    downloadCreativeProfilePdf(data);
+    if(status) status.textContent=data.simulation
+      ? 'PDF generado con lectura simulada.'
+      : 'Diagnóstico generado y descargado.';
+  }catch(e){
+    if(status) status.textContent=e.message||'No se pudo generar el diagnóstico.';
+  }finally{
+    if(button){button.disabled=false;button.textContent='Descargar diagnóstico profundo';}
+  }
 }
 
 async function sendFeedback(){
