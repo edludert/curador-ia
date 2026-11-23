@@ -653,3 +653,30 @@ select,input,textarea{width:100%;background:#050505;color:#fff;border:1px solid 
 @media(prefers-reduced-motion:reduce){
   .dna-star{animation:none}
 }
+
+/* Constellation refinement: connected moving boxes, no white dots */
+.dna-lines{
+  animation:dnaLinesDrift 8s ease-in-out infinite;
+  transform-origin:center;
+}
+.dna-lines line{
+  stroke:rgba(255,255,255,.28);
+  stroke-width:.22;
+}
+.dna-star-dot{display:none!important}
+.dna-star{
+  animation:dnaOrbit 9s ease-in-out infinite;
+  animation-delay:var(--delay);
+}
+.dna-star:nth-of-type(2n){animation-duration:11s}
+.dna-star:nth-of-type(3n){animation-duration:13s}
+@keyframes dnaOrbit{
+  0%,100%{transform:translate(-50%,-50%) translate3d(-6px,0,0)}
+  25%{transform:translate(-50%,-50%) translate3d(0,-7px,0)}
+  50%{transform:translate(-50%,-50%) translate3d(7px,1px,0)}
+  75%{transform:translate(-50%,-50%) translate3d(0,6px,0)}
+}
+@keyframes dnaLinesDrift{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.008)}
+}
