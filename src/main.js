@@ -851,6 +851,7 @@ function dnaView(){
 
     <div class="dna-constellation">
       <svg class="dna-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        ${signals.map((_,i)=>`<line x1="${nodes[i].x}" y1="${nodes[i].y}" x2="${nodes[(i+1)%signals.length].x}" y2="${nodes[(i+1)%signals.length].y}" />`).join('')}
         ${signals.map((_,i)=>`<line x1="50" y1="50" x2="${nodes[i].x}" y2="${nodes[i].y}" />`).join('')}
       </svg>
 
@@ -863,7 +864,6 @@ function dnaView(){
 
       ${signals.map((signal,i)=>`
         <button class="dna-star" style="--x:${nodes[i].x}%;--y:${nodes[i].y}%;--delay:${nodes[i].delay}" title="${esc(rawSignals[i]||signal)}">
-          <span class="dna-star-dot"></span>
           <span class="dna-star-label">${esc(signal)}</span>
         </button>
       `).join('')}
@@ -873,13 +873,10 @@ function dnaView(){
       <div class="k">LECTURA PROVISIONAL</div>
       ${reading ? `
         <div class="big">${esc(reading.hypothesis||'Lectura en construcción')}</div>
-        <div class="row">${signals.map(c=>`<span class="pill dark">${esc(c)}</span>`).join('')}</div>
-        ${reading.note?`<p class="mini">${esc(reading.note)}</p>`:''}
       ` : `
         <div class="big">Tu ADN todavía no ha sido leído.</div>
         <p class="m">Genera una lectura para cruzar tu trayectoria documentada, proyectos y reflexiones.</p>
       `}
-      <div class="notice">Esta lectura es revisable. Cambia conforme crece tu archivo.</div>
     </div>
   </section>`;
 }
